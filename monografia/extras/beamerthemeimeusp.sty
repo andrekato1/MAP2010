@@ -1,0 +1,281 @@
+% Author: Nelson Lago
+% This file is distributed under the MIT Licence
+
+\ProvidesPackage{beamerthemeimeusp}[2018/10/16 v1.0 IME/USP Beamer theme]
+
+% Caso LaTeX faça alguma substituição de fontes, vamos garantir que ele
+% use Latin Modern e não outra versão das fontes Computer Modern.
+\RequirePackage{lmodern}
+\RequirePackage{fix-cm}
+
+\RequirePackage{etoolbox}
+
+\RequirePackage{calc}
+
+\RequirePackage{ragged2e}
+
+% Inspirado no comando \narrowragged da package varwidth.
+%
+% Num texto normal, os parágrafos costumam ser justificados. Em uma
+% apresentação, os parágrafos são muito curtos (1-3 linhas), então
+% justificar não é tão bom e, por isso, beamer usa parágrafos
+% ragged right.
+%
+% De forma similar, em um texto normal, a última linha de um parágrafo
+% pode ser bastante curta. Isso também é problemático em uma apresentação,
+% mas beamer não trata isso de forma especial. Aqui, incentivamos LaTeX
+% a fazer as linhas do parágrafo um pouco mais curtas para evitar que a
+% última fique curta demais. Além disso, fazemos LaTeX preferir não
+% hifenizar palavras se possível. Os valores dos parâmetros são chutes :)
+% mas devem funcionar razoavelmente.
+\RaggedRightRightskip .05\textwidth plus .2\textwidth minus .05\textwidth\relax
+\RaggedRightParfillskip .2\textwidth plus .2\textwidth minus .2\textwidth\relax
+\hyphenpenalty=200
+
+\usetheme[sectionpage=progressbar,subsectionpage=none,numbering=fraction,progressbar=frametitle]{metropolis}
+
+\usefonttheme{professionalfonts}
+
+% Estas packages precisam ser carregadas depois do tema metropolis
+\PassOptionsToPackage{mono=false}{libertine}
+\PassOptionsToPackage{scale=.85}{sourcecodepro}
+\RequirePackage{sourcecodepro}
+\RequirePackage{libertine}
+
+% As margens default são muito grandes
+\setbeamersize{
+  text margin left=.03\paperwidth,
+  text margin right=.05\paperwidth
+}
+
+\usefonttheme{structurebold}
+\useinnertheme{circles}
+
+% Customizando "itemize" (bold/itálico, formato dos bullets, margens)
+\setbeamerfont{itemize/enumerate body}{series=\bfseries}
+\setbeamerfont{itemize/enumerate subbody}{series=\normalfont}
+\setbeamerfont{itemize/enumerate subsubbody}{series=\itshape}
+
+% Os triângulos ficam MUITO grandes, acho que por conta do
+% inner theme "circles"; vamos definir manualmente.
+%\setbeamertemplate{itemize items}[triangle]
+\setbeamertemplate{itemize item}{\raisebox{-.05em}{\Large\textbf{\textbullet}}}
+
+% O triângulo fica de tamanhos diferentes com pdflatex e lualatex;
+% para contornar isso, vamos (1) redimensionar para o tamanho do
+% \strut e (2) redimensionar para 25% desse valor.
+\setbeamertemplate{itemize subitem}{{\normalsize\raisebox{.4\totalheight}{\scalebox{.25}{\resizebox*{!}{\totalheightof{\strut}}{\ensuremath{\blacktriangleright}}}}}}
+\setbeamertemplate{itemize subsubitem}{\raisebox{.02em}{{\textbf{\guillemotright}}}}
+
+% A margem esquerda das listas de itens no beamer são um tanto exageradas
+\addtolength{\leftmargini}{-.9em}
+\addtolength{\leftmarginii}{-1.3em}
+\addtolength{\leftmarginiii}{-1em}
+\addtolength{\labelsep}{-.3em}
+
+\setbeamertemplate{caption}[numbered]
+
+% Os triângulos ficam MUITO grandes, acho que por conta do
+% inner theme "circles"; vamos definir manualmente.
+%\setbeamertemplate{bibliography item}[triangle]
+\setbeamertemplate{bibliography item}{{\normalsize\raisebox{.4\totalheight}{\scalebox{.25}{\resizebox*{!}{\totalheightof{\strut}}{\ensuremath{\blacktriangleright}}}}}}
+
+% Normalmente, beamer não utiliza os "labels" normais na bibliografia;
+% ao invés disso, ele coloca ícones indicando o tipo de item. Isso
+% funciona corretamente na configuração padrão e usando bibtex, mas
+% gera alguns problemas com biblatex ou quando utilizamos "labels"
+% personalizados, como os triângulos que definimos logo acima.
+%
+% Versões mais novas de beamer + biblatex + latex usam hooks para
+% ajustar o tamanho dos labels, resolvendo a incompatibilidade com
+% biblatex. Ainda assim, há problemas com nosso label personalizado.
+% Aqui, aplicamos duas correções:
+%
+% 1. Detectamos se estamos usando uma versão mais antiga de biblatex
+%    (sem suporte a hooks) e, se sim, imitamos a configuração das
+%    versões mais novas. Isso deve funcionar com bibliografias no
+%    formato autor-data e autor-título, não sei com outros! Veja
+%    https://github.com/josephwright/beamer/commit/2a81ef0c0172a4ba7ee11676a177c7f6fd21cf3d
+%    TODO: isto pode ser removido em 2024.
+%
+% 2. Ajustamos bibhang para que, independentemente do tamanho do label,
+%    as linhas subsequentes estejam alinhadas à esquerda.
+
+\AtEndPreamble{
+  \@ifpackageloaded{biblatex}
+    {
+      % O item 1 da explicação acima
+      \@ifpackagelater{biblatex}{2020/08/23}
+        {}
+        {
+          \mode<presentation>{%
+            \pretocmd{\bibsetup}{%
+              \newlength{\beamer@bibiconwidth}%
+              \settowidth\beamer@bibiconwidth{\usebeamertemplate*{bibliography item}}%
+              \setlength{\labelwidth}{-\beamer@bibiconwidth}%
+              \addtolength{\labelwidth}{2\labelsep}%
+              \addtolength{\bibhang}{\labelsep}% desnecessário, vamos redefinir abaixo
+            }{}{}%
+          }
+        }
+
+      % O item 2 da explicação acima
+      \mode<presentation>{%
+        \apptocmd{\bibsetup}{%
+          \setlength{\bibhang}{2\noexpand\beamer@bibiconwidth}%
+          \addtolength{\bibhang}{-2\labelsep}%
+        }{}{}%
+      }
+    }{}
+}
+
+% Remove ícones de navegação
+\beamertemplatenavigationsymbolsempty
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% COMANDOS AUXILIARES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RequirePackage{qrcode}
+
+\newcommand\presentationurl[1]{
+  \gdef\thepresentationurl{#1}
+}
+
+\newcommand\showqrcode{
+  \ifcsvoid{thepresentationurl}{\relax}{% else
+    \begin{frame}[plain]
+      \vfill
+      {\centering\noindent\qrcode[height=.8\paperheight,level=H]{\thepresentationurl}\par}
+      \vfill
+    \end{frame}
+  }
+}
+
+\newcommand\includeqrcodeintoc{
+  \ifcsvoid{thepresentationurl}{\relax}{% else
+    \gdef\qrcodecontents{\thepresentationurl}
+  }
+}
+
+\newcommand\qrcodeintoc{
+  \ifcsvoid{qrcodecontents}{\relax}{% else
+    \vskip 2\baselineskip plus \baselineskip minus 2.5\baselineskip
+    {\centering\noindent\qrcode[height=.27\paperheight,level=H]{\thepresentationurl}\par}
+  }
+}
+
+\newcommand\spaceforqrcode{
+  \ifcsvoid{qrcodecontents}{\relax}{% else
+    \vskip 2\baselineskip plus \baselineskip minus 2.5\baselineskip
+    ~\vspace{.3\paperheight}\par
+  }
+}
+
+\newcommand\toccolumns[1]{
+  \gdef\thetoccolumns{#1}
+}
+
+\newcommand{\theoverview}{\tableofcontents\qrcodeintoc}
+\newcommand{\intermezzo}{\tableofcontents[currentsection]\spaceforqrcode}
+
+\newcommand\overview{
+  \ifcsvoid{thetoccolumns}{\relax}{% else
+
+    \gdef\theoverview{%
+      \begin{columns}[t]
+        \column{.45\textwidth}
+          \tableofcontents[sections={1-\thetoccolumns}]
+        \column{.45\textwidth}
+          \tableofcontents[sections={\the\numexpr 1 + \thetoccolumns\relax-}]
+
+          \qrcodeintoc
+      \end{columns}
+    }
+
+    \gdef\intermezzo{%
+      \begin{columns}[t]
+        \column{.45\textwidth}
+          \tableofcontents[currentsection,sections={1-\thetoccolumns}]
+        \column{.45\textwidth}
+          \tableofcontents[currentsection,sections={\the\numexpr 1 + \thetoccolumns\relax-}]
+
+          \spaceforqrcode
+      \end{columns}
+    }
+  } % end ifnumequal
+
+  \theoverview
+}
+
+\newcommand\bgimage[1]{
+  \gdef\thebgimage{%
+      \noindent\begin{minipage}[b][\paperheight][b]{\paperwidth}
+        \vfill
+        \centering\noindent#1\par
+      \end{minipage}%
+  }
+}
+
+\newcommand\logos[1]{
+  \gdef\thelogos{%
+      \noindent\begin{minipage}[b][\paperheight][b]{\paperwidth}
+          % O centro da área de impressão não é o centro do papel;
+          % aqui queremos centralizar no papel, então compensamos
+          % a diferença (esse ajuste foi feito "no olho") com
+          % \hspace
+          \vfill
+          \centering%
+          % "\strut" para garantir que "\hfil" à direita funcione
+          \noindent\hspace*{-.04\textwidth}#1\strut\par
+          \noindent\hspace*{-.04\textwidth}\includegraphics[height=.0311\paperheight]{cc-by}\par
+          \vspace{.3\baselineskip}
+      \end{minipage}%
+  }
+}
+
+\newcommand\customtitlepage{
+  {
+      % Traz o título para cima para deixar mais espaço para a imagem
+      % de fundo que fica mais para baixo
+      \addtobeamertemplate{title}{\vspace*{-3\baselineskip}}{}
+      \addtobeamertemplate{title separator}{\vspace*{-.5\baselineskip}}{\vspace*{-\baselineskip}}
+      \definecolor{bggray}{RGB}{238,238,236}
+      \setbeamercolor{background canvas}{bg=bggray}
+      \setbeamercolor{background}{bg=}
+      % Duas minipages sobrepostas, uma com a imagem de
+      % fundo e a outra com os logotipos das agências
+      % Precisa estar dentro das minipages porque fica
+      % mais fácil fazer o alinhamento vertical
+      \setbeamertemplate{background}{%
+          \ifcsvoid{thebgimage}{\relax}{%
+              \thebgimage%
+              \hspace{-\paperwidth}% "Volta o cursor"
+          }%
+          \ifcsvoid{thelogos}{\relax}{\thelogos}%
+      }
+
+      \begin{frame}
+          \titlepage
+      \end{frame}
+  }
+}
+
+% Há um bug em beamer, no arquivo beamerbasetoc.sty, na definição da
+% macro \beamer@sectionintoc. Essa macro faz \hbox{\vbox{...}} para
+% cada item do sumário. O problema é que, se alguma das entradas do
+% sumário tem mais de uma linha, o espaçamento entre essa entrada e
+% a entrada anterior fica errado (ligeiramente menor). Normalmente
+% esse problema não chama muito a atenção, mas se há muitos itens
+% (e, portanto, o espaço entre eles é pequeno) ou se colocamos o
+% sumário em uma minipage ou um ambiente em colunas (que minimiza o
+% espaçamento vertical), o resultado é ruim.
+%
+% \beamer@subsectionintoc e \beamer@subsubsectionintoc não fazem
+% \hbox{\vbox{...}}; num teste preliminar, remover esses comandos
+% de \beamer@sectionintoc parece funcionar. Outra solução seria
+% acrescentar um \strut: \hbox{\vbox{\strut ...}}. Aqui, no entanto,
+% contornamos o problema acrescentando o \strut em outro lugar, que
+% é mais simples de fazer e (esperemos!) não vai causar problemas.
+% Bug report: https://github.com/josephwright/beamer/issues/524
+\pretocmd{\beamer@tocact}{\strut}{}{}
+
+\endinput

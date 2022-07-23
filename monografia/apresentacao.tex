@@ -1,0 +1,335 @@
+% Authors: Nelson Lago and Fernanda Magano
+% This file is distributed under the MIT Licence
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREÂMBULO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% aspectratio default é 4:3;
+% as mais úteis são 169 (16:9), 1610 (16:10) e 149 (14:9)
+% A língua padrão é a última citada
+\documentclass[
+  xcolor={hyperref,svgnames,x11names,table},
+  hyperref={pdfencoding=unicode,plainpages=false,pdfpagelabels=true,breaklinks=true},
+  brazilian,english,12pt,aspectratio=149,
+]{beamer}
+
+% Vários pacotes e opções de configuração genéricos
+\input{extras/basics}
+\input{extras/languages}
+% A fonte precisa ser definida depois que o tema metropolis foi carregado
+%\input{extras/fonts}
+\input{extras/floats}
+% index não é necessário, mas deixamos aqui para usar os mesmos
+% passos de compilação que a tese
+\input{extras/index}
+\input{extras/bibconfig}
+\input{extras/hyperlinks}
+\hidelinks % desabilita cor/sublinhado dos links (URLs, refs etc.)
+\input{extras/source-code}
+\input{extras/utils}
+
+% Diretórios onde estão as figuras; com isso, não é preciso colocar o caminho
+% completo em \includegraphics (e nem a extensão).
+\graphicspath{{figuras/},{logos/}}
+
+% Comandos rápidos para mudar de língua:
+% \en -> muda para o inglês
+% \br -> muda para o português
+% \texten{blah} -> o texto "blah" é em inglês
+% \textbr{blah} -> o texto "blah" é em português
+\babeltags{br = brazilian, en = english}
+
+% Espaçamento simples
+\singlespacing
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% APARÊNCIA DO BEAMER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{appendixnumberbeamer}
+
+% Tema metropolis com algumas modificações
+\usetheme{imeusp} % carregado do diretório extras (veja basics.tex)
+
+% O padrão usa um tom de vermelho escuro como cor principal; a opção
+% "greeny" troca essa cor por um tom de verde; a opção "sandy" usa o
+% mesmo tom de verde mas modifica a cor padrão dos blocos para um
+% tom amarelado.
+\usecolortheme[greeny]{imeusp} % carregado do diretório extras (veja basics.tex)
+% Desabilita a cor de rodapé
+\setbeamercolor{footline}{fg=,bg=}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% COMANDOS PARA O USUÁRIO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\col{\column{.5\textwidth}}
+
+% A cada nova seção, recapitula o sumário
+% Para desabilitar, é só comentar este trecho
+\AtBeginSection[]{
+  \begin{frame}<beamer>{Overview}
+    \intermezzo
+  \end{frame}
+}
+
+% Blocos de cor personalizada
+\newenvironment{coloredblock}[2]%
+{
+    \setbeamercolor{block title}{fg=white,bg=#1!80!white}
+    \setbeamercolor{block body}{fg=darkgray,bg=#1!20!white}
+    \setbeamercolor{local structure}{fg=darkgray,bg=#1!20!white}
+    \begin{block}{#2}
+}{
+    \end{block}
+}
+
+% Bibliografia
+\usepackage[
+  %style=extras/plainnat-ime, % variante de autor-data, similar a plainnat
+  %style=alphabetic, % similar a alpha
+  %style=numeric, % comum em artigos
+  %style=authoryear-comp, % autor-data "padrão" do biblatex
+  %style=apa, % variante de autor-data, muito usado
+  %style=abnt,
+  style=authortitle,
+  dashed=false,
+]{biblatex}
+
+% Numa apresentação, a bibliografia pode ficar em tamanho menor
+\renewcommand*{\bibfont}{\footnotesize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% METADADOS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% O arquivo com os dados bibliográficos para biblatex; você pode usar
+% este comando mais de uma vez para acrescentar múltiplos arquivos
+\addbibresource{bibliografia.bib}
+
+% Este comando permite acrescentar itens à lista de referências sem incluir
+% uma referência de fato no texto (pode ser usado em qualquer lugar do texto)
+%\nocite{bronevetsky02,schmidt03:MSc, FSF:GNU-GPL, CORBA:spec, MenaChalco08}
+% Com este comando, todos os itens do arquivo .bib são incluídos na lista
+% de referências
+%\nocite{*}
+
+\title[The shortened title]{The full title, which may be quite,\\ quite long indeed}
+\subtitle{The (optional) subtitle}
+
+\author[Authors Name]{Authors Name}
+
+\institute[USP]{\textbf{Workshop Name} \\ Computer Science Department \\ IME USP}
+%\institute[USP]{\textbf{Orientador:} \\ Computer Science Department \\ IME USP}
+
+\date{Month and day, year}
+
+% Coloca a imagem no fundo da página de título
+\bgimage{\includegraphics[width=\paperwidth]{fundo_predios_e_grafo}}
+
+% Logotipos no rodapé da página de título
+\logos{
+  \hfil\hfil\includegraphics[width=.1\textwidth]{usp-logo}\hfil%
+  \raisebox{-.0103\paperheight}{\includegraphics[height=.0932\paperheight]{interscity-logo}}\hfil%
+  \raisebox{-.0037\paperheight}{\includegraphics[width=.1\textwidth]{ime-logo}}\hfil\hfil
+}
+
+%\logos{
+%  \hfil\hfil\includegraphics[width=.1\textwidth]{usp-logo}\hfil%
+%  \raisebox{-.0103\paperheight}{\includegraphics[height=.0932\paperheight]{interscity-logo}}\hfil%
+%  \raisebox{-.00517\paperheight}{\includegraphics[height=.057\paperheight]{cnpq-logo}}\hfil%
+%  \raisebox{-.0342\paperheight}{\includegraphics[height=.1035\paperheight]{capes-logo}}\hfil%
+%  \includegraphics[height=.044\paperheight]{fapesp-logo}\hfil\hfil
+%}
+
+% Usado para criar o qrcode com o endereço da apresentação
+\presentationurl{http://interscity.org}
+
+% Inclui o qrcode no sumário da apresentação
+\includeqrcodeintoc
+
+% O slide de sumário pode ser dividido em colunas; o parâmetro
+% determina após qual o número da seção fazer a quebra de coluna
+% (use zero para uma coluna ou simplesmente omita este comando).
+\toccolumns{4}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% INÍCIO DA APRESENTAÇÃO %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+% Em uma apresentação não há \maketitle. No entanto, é complicado
+% colocar uma imagem de fundo, os logos das agências e o conteúdo
+% "normal" do slide de título sem que as coisas fiquem bagunçadas,
+% então definimos um comando para gerar o slide de título no lugar
+% de \maketitle
+\customtitlepage
+
+% Slide com o qrcode
+\showqrcode
+
+\begin{frame}{Overview}
+  \overview
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{Context}
+  \begin{itemize}
+    \item The copyright compromise seeked to balance public and private interests
+    \item Nowadays, changes to the law and technological advances all but destroyed this balance
+    \item[]\strut % https://github.com/schlcht/microtype/issues/6
+    \item As a reaction, the free software movement was created
+    \begin{itemize}
+      \item Return to sharing (of source code) and to collaboration (exchange of ideas and team work)
+      \item Formalization with the GNU project
+      \item Only really possible when there are favourable conditions for source code exchange
+      \begin{itemize}
+        \item as highlighted by the growth that accompanied the Internet boom
+      \end{itemize}
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{figure}[H] % [H] é obrigatório em apresentações!
+    \includegraphics[width=\textwidth]{interscity-logo}
+    \caption{The InterSCity project logo}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[standout]
+  This is a problem!
+\end{frame}
+
+\begin{frame}{Goals}
+  \begin{block}{Functional requirements}
+    \begin{itemize}
+      \item Integration and Management of \alert{IoT} Devices
+      \item Data Acquisition, Storing, and Processing
+      \item Context-awareness
+      \item City Resource Discovery
+      \item Geolocation-based Services
+      \item External data access
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\section{Concepts}
+
+\begin{frame}{Concepts}
+  \begin{columns}[t]
+    \col
+      \begin{coloredblock}{red!90!black}{Functional requirements}
+        \begin{itemize}
+          \item Integration and Management of IoT Devices
+          \item Data Acquisition, Storing, and Processing
+          \item Context-awareness
+          \item City Resource Discovery
+          \item Geolocation-based Services
+          \item External data access
+        \end{itemize}
+      \end{coloredblock}
+
+    \col
+      \begin{coloredblock}{red!90!black}{Non-functional requirements}
+        \begin{itemize}
+          \item Interoperability
+          \item Scalability
+          \item Security
+          \item Privacy
+          \item Evolvability
+          \item Adaptability
+        \end{itemize}
+      \end{coloredblock}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Theorems and proofs}
+  \pause
+  \begin{theorem}[An example theorem]
+    Theorem\dots
+  \end{theorem}
+
+  \pause
+  \begin{example}[An example of an example]
+    Example\dots
+  \end{example}
+
+  \pause
+  \begin{proof}[An example proof]
+    Proof\dots
+  \end{proof}
+
+  \pause
+  \begin{definition}[An example definition]
+    Definition\dots
+  \end{definition}
+
+  \pause
+  \begin{proposition}[An example proposition]
+    Proposition\dots
+  \end{proposition}
+\end{frame}
+
+\section{Related Works}
+
+\begin{frame}{Related Works}
+\end{frame}
+
+\section{Methodology}
+
+\begin{frame}{Methodology}
+\end{frame}
+
+\section{Results}
+
+\subsection{Validation and Analysis}
+
+\begin{frame}{Validation}
+\end{frame}
+
+\begin{frame}{Case Study}
+\end{frame}
+
+\section{Conclusion and Future works}
+
+\begin{frame}{Conclusion and Future works}
+\end{frame}
+
+\section{References}
+
+\begin{frame}[allowframebreaks]{References}
+  \nocite{bronevetsky02, schmidt03:MSc, FSF:GNU-GPL, CORBA:spec,
+          MenaChalco08, natbib, biblatex, eco:09}
+  \printbibliography
+\end{frame}
+
+% Recapitulando
+\begin{frame}{\insertshorttitle}
+  \overview
+
+  % \begin{center} acrescenta espaço vertical;
+  % como possivelmente temos bem pouco espaço aqui,
+  % vamos usar centering
+  {%
+    \centering\noindent%
+    \url{https://gitlab.com/link-of-your-repository}\par
+  }
+
+\end{frame}
+
+\showqrcode
+
+\appendix
+
+\begin{frame}{Extra info}
+  \begin{itemize}
+    \item It is often useful to have some extra slides addressing likely questions from the audience at the end of the presentation
+    \item By putting them after the ``appendix'' command, they are not counted in the page count indicator
+  \end{itemize}
+\end{frame}
+
+\end{document}
