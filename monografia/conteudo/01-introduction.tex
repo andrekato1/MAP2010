@@ -35,11 +35,11 @@ The learner and decision-maker agent and the thing it interacts with, comprising
 
 \begin{figure}[H]
     \includegraphics[width=\textwidth]{agent-environment}
-    \caption{Representation of the agent-environment interface}
+    \caption{Representation of the agent-environment interface from \cite{suttonbarto}.}
 \end{figure}
 
 In other words, at each time step $t = 0, 1, 2, \dots$, the agent receives some representation of the environment's state $S_t \in \mathcal{S}$, where $\mathcal{S}$ is the set of all possible states, and selects an action $A_t \in \mathcal{A}(S_t)$, where $\mathcal{A}$ is the set of all possible actions and $\mathcal{A}(S_t)$ the set of all possible actions in state $S_t$. At the next time step $t+1$, the agent receives a reward $R_{t+1} \in \mathbb{R}$ and a new state $S_{t+1}$. 
 
-The action the agent takes is sampled from the agent's policy, denoted $\pi_t$, with $\pi_t(a \mid s)$ being the probability of the action $A_t = a$ being picked when in state $S_t = s$.
+The action the agent takes is sampled from the agent's policy, denoted $\pi$, with $\pi(a \mid s)$ being the probability of taking action $a$ when in state $s$. $\pi$ is just an ordinary function defining a probability distribution over $a \in \mathcal{A}(s)$. Reinforcement learning methods specify how the policy is changed as the agent gathers more experience. 
 
 \section{}
