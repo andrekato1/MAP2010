@@ -42,4 +42,22 @@ In other words, at each time step $t = 0, 1, 2, \dots$, the agent receives some 
 
 The action the agent takes is sampled from the agent's policy, denoted $\pi$, with $\pi(a \mid s)$ being the probability of taking action $a$ when in state $s$. $\pi$ is just an ordinary function defining a probability distribution over $a \in \mathcal{A}(s)$. Reinforcement learning methods specify how the policy is changed as the agent gathers more experience. 
 
-\section{}
+\section{Goals and Rewards}
+The goal of an agent is formalized in terms of a reward signal $R_t \in \mathbb{R}$ that is passed to the agent by the environment. The agent's goal is to maximize the total amount of rewards it receives, which means maximizing the cumulative reward. Consider the sequence of rewards received after time step $t$: $R_{t+1}, R_{t+2}, \dots$. What we seek to maximize is the \textit{expected return} $G_t$, which is a function of the sequence of rewards. The simplest case is the sum of all of them:
+\[
+    G_t = R_{t+1} + R_{t+2} + \dots + R_T
+\]
+where $T$ denotes the final time step. The notion of a final time step comes naturally when the agent-environment interaction can be breaked down into subsequences, which we call \textit{episodes} or \textit{trials}. For example, plays of a game, trips through a maze or any sort of repeated interactions can be considered episodes. Each episode ends in a special state called \textit{terminal state}, followed by a reset to a standard state or to a sample of a distribution of starting states.
+
+However, not all agent-environment interactions can be breaked naturally into episodes, instead, it could go on without limit. That is, with abuse of notation, $T = \infty$ and the return $G$ could easily be infinite as well. Thus, the concept of \textit{discounting} arises, where we introduce a \textit{discounting factor} $\gamma$, $0 \leq \gamma \geq 0$, to weigh immediate and future rewards:
+
+\[
+    G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots = \sum_{k=0}^{\infty}\gamma^k R_{t+k+1}
+\]
+
+Then, the sum is finite as long as $\gamma < 1$ and the reward sequence is bounded. Also note that if $\gamma = 0$, the agent is only concerned with immediate rewards and the action $A_t$ will be chosen in such a way to maximize only $R_{t+1}$. If $\gamma$ is close to $1$, then the future rewards will be taken into account more strongly.
+
+According to \cite{suttonbarto}, although formulating goals in terms of reward signals appears to be limiting, in practice, it has proved to be flexible and widely applicable. For example, to make a robot learn how to escape from a maze, the reward is often -1 for every time
+step that passes prior to escape; this encourages the agent to escape as quickly as possible.
+
+While designing how rewards should be given to the agent, it's crucial that it's done in such a way maximizing also makes the agent achieve the goal. That is, the reward signal must not be used to impart any prior knowledge to the agent about how to achieve the goal. For example, in a chess game, rewards should be given when the agent wins the game, and not when accomplishing subgoals, such as taking enemy pieces. If the agent gets rewarded for achieving subgoals, it might find a way to maximize the rewards by only taking enemy pieces and without actually winning. All in all, the reward signal is our way of communicating to the agent what needs to be done, not how to do it. 
