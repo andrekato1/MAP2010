@@ -3,7 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Obs
+  - Crash
+  - parking_spot
+  - agent
+  - parked_car
+  - floor
   layers:
   - Default
   - TransparentFX
@@ -13,9 +19,9 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
+  - Pointer
+  - Not_In_Minimap
+  - Minimap_Layer
   - 
   - 
   - 

@@ -1,0 +1,65 @@
+{
+    "Car": {
+        "checkpoints": [
+            {
+                "steps": 3499903,
+                "file_path": "results\\run_overnight_01\\Car\\Car-3499903.onnx",
+                "reward": 413.3249332593835,
+                "creation_time": 1660203033.1132019,
+                "auxillary_file_paths": [
+                    "results\\run_overnight_01\\Car\\Car-3499903.pt"
+                ]
+            },
+            {
+                "steps": 3999942,
+                "file_path": "results\\run_overnight_01\\Car\\Car-3999942.onnx",
+                "reward": 328.6827638874883,
+                "creation_time": 1660205558.1900997,
+                "auxillary_file_paths": [
+                    "results\\run_overnight_01\\Car\\Car-3999942.pt"
+                ]
+            },
+            {
+                "steps": 4499897,
+                "file_path": "results\\run_overnight_01\\Car\\Car-4499897.onnx",
+                "reward": 408.3536260024361,
+                "creation_time": 1660208075.7425275,
+                "auxillary_file_paths": [
+                    "results\\run_overnight_01\\Car\\Car-4499897.pt"
+                ]
+            },
+            {
+                "steps": 4999917,
+                "file_path": "results\\run_overnight_01\\Car\\Car-4999917.onnx",
+                "reward": 435.1869976646022,
+                "creation_time": 1660210594.409281,
+                "auxillary_file_paths": [
+                    "results\\run_overnight_01\\Car\\Car-4999917.pt"
+                ]
+            },
+            {
+                "steps": 5000045,
+                "file_path": "results\\run_overnight_01\\Car\\Car-5000045.onnx",
+                "reward": 435.1869976646022,
+                "creation_time": 1660210594.4996579,
+                "auxillary_file_paths": [
+                    "results\\run_overnight_01\\Car\\Car-5000045.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 5000045,
+            "file_path": "results\\run_overnight_01\\Car.onnx",
+            "reward": 435.1869976646022,
+            "creation_time": 1660210594.4996579,
+            "auxillary_file_paths": [
+                "results\\run_overnight_01\\Car\\Car-5000045.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.29.0",
+        "torch_version": "1.12.1+cpu"
+    }
+}

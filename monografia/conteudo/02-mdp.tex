@@ -4,5 +4,17 @@
 
 \chapter{Markov Decision Processes}
 
-\section{Markov Property}
+\section{Markov Processes}
 
+In the reinforcement learning framework, the agent makes decisions as a function of a signal from the environment called the \textbf{state}. In this section, we discuss what is required of the state signal and what information it does or does not convey.
+
+The state signal should include an immediate sensation, but it could include more than that, including some memory from past states. In fact, in typical applications, it usually is expected the state to inform the agent of more than just immediate sensations. For example, we could hear the word "yes", but we could be in totally different states depending on what was the question that came before and can no longer be heard. In contrast, the state signal should not be expected to inform the agent about all of the past experiences ou all about the environment. Ideally, we want the state signal to summarize well past experiences, in such a way all the relevant information is retained. 
+
+To formalize this idea, for simplicity, suppose there are a finite number of states and rewards. Also, consider that the environment responds at time $t+1$ to a action taken at time $t$. We define the history sequence as $h_t = \{S_0, A_0, R_1, \dots, S_{t-1}, A_{t-1}, R_t, S_t, A_t\}$. Assume the state is a function of the history, that is, $S_t = f(h_t)$. If the state signal does not have the Markov property, the response of the environment depends on everything that happened earlier. Otherwise, the environment's response depends only on the state and actions at time $t$.
+\begin{definition}{Markov Property}{markov_property}
+      A state signal is said to have the Markov property if and only if
+      \begin{equation}\label{eq:markov_property}
+            P\{R_{t+1} = r, S_{t+1} = s' \mid h_t\} = P\{R_{t+1} = r, S_{t+1} = s' \mid S_t, A_t\}
+      \end{equation}
+      for all $r$, $s'$ and $h_t$. If \ref{eq:markov_property} is satisfied, then the environment also has the Markov property.   
+\end{definition}
