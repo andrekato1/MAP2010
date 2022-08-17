@@ -6,6 +6,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
@@ -24,14 +25,10 @@ public class CarAgent : Agent
     public Transform frontRightWheelTransform;
     public Transform rearLeftWheelTransform;
     public Transform rearRightWheelTransform;
-    private float horizontalInput;
-    private float verticalInput;
-    private float steerAngle;
-    private bool isBreaking;
 
     // Car settings
-    public float maxMotorTorque = 200f;
-    public float maxSteeringAngle = 30f;
+    public float maxMotorTorque = 800f; //200f
+    public float maxSteeringAngle = 40f; //30f
     public float maxBrakeTorque = 500f;
     // public float maximumSpeed = 8f;
     float motor;
@@ -41,24 +38,17 @@ public class CarAgent : Agent
     // Observations - vectors normalized
     private float velocityXNorm;
     private float velocityZNorm;
-    private float headingAngleNorm;
+    private Vector3 headingAngleNorm;
     private Vector3 agentPosNorm;
     private Vector3 parkingPosNorm;
     private Vector3 goalDistAgentNorm;
     // ------------------
 
     // Agent
-    Vector3 zDirection;
-    Vector3 goalDistAgent;
-    float headingRelative;
-    float headingAngle;
     float goalDist;
-    Vector3 defaultInitPos = new Vector3(11.5f, 7.527747f, -0f);//new Vector3(7.894719f, 7.527747f, 0.570056f);
+    Vector3 defaultInitPos = new Vector3(11.34f, 7.527747f, 0f);
     bool initRandomPos = false;
     Rigidbody rb;
-    float lastDistance;
-    Vector3 lastVelocity;
-    Vector3 acceleration;
     // ------------------
 
     // Parking spot
@@ -72,10 +62,9 @@ public class CarAgent : Agent
     // ------------------
 
     // Rewards
-    public float goalReward = 1f;
-    bool isAligned;
+    public float goalReward = 1000f;
     public float alignedReward = 3f;
-    public float loseReward = -1f;
+    public float loseReward = -1000f;
     float sumRewards;
     // ------------------
 
@@ -83,16 +72,23 @@ public class CarAgent : Agent
     float parkingTime;
     float elapsed;
     bool isParking = false;
-    bool parked;
     public int numCollisions;
     public int numEpisode = 0;
-    public int numSuccessEasyMode = 0;
     public int numSuccess = 0;
-    bool easyMode;
-    private Material material;
     private Color green = new Color(0.29412f, 0.70980f, 0.26275f);
-    private Color gray = new Color(0.25490f, 0.25490f, 0.25490f);
     private Color red = new Color(1f, 0f, 0f);
+    // ------------------
+
+    // UI
+    public TextMeshProUGUI throttleText;
+    public TextMeshProUGUI steeringText;
+    public TextMeshProUGUI totalRewards;
+    public TextMeshProUGUI distanceReward;
+    public TextMeshProUGUI headingReward;
+    // ------------------
+
+    // Rewards Curve
+    public AnimationCurve fuzzyDistance;
     // ------------------
 
     /// <summary>
@@ -115,34 +111,23 @@ public class CarAgent : Agent
     /// </summary>
     public override void OnEpisodeBegin()
     {
-        isAligned = false;
         parkingTime = 0f;
         elapsed = 0f;
         numCollisions = 0;
         isParking = false;
-        parked = false;
-        lastVelocity = Vector3.zero;
-        acceleration = Vector3.zero;
-        zDirection = new Vector3(0, 0, 1);
-        lastDistance = goalDist = Vector3.Distance(defaultInitPos, parkingSpot.localPosition);
         for (int i = 0; i < gos.Length; i++)
         {
             gos[i].transform.localPosition = parkedCarsInitialPos[i];
-            gos[i].transform.localRotation = Quaternion.identity;
+            gos[i].transform.localEulerAngles = new Vector3(0f, -90f, 0f);
         }
 
         rb.angularVelocity = Vector3.zero;
         rb.velocity = Vector3.zero;
         InitParking();
         transform.localPosition = defaultInitPos;
-        transform.eulerAngles = new Vector3(0f, -90f, 0f);//Quaternion.identity;
-        easyMode = UnityEngine.Random.value > .5f;
-
-        if (easyMode)
-        {
-            transform.localPosition = new Vector3(7.894719f, 7.527747f, 0.570056f);
-            transform.eulerAngles = new Vector3(0f, 0f, 0f);
-        }
+        transform.eulerAngles = new Vector3(0f, 0f, 0f);
+        transform.localRotation = Quaternion.identity;
+        sumRewards = 0;
         numEpisode++;
     }
     /// <summary>
@@ -150,63 +135,50 @@ public class CarAgent : Agent
     /// </summary>
     public void InitParking()
     {
-        ChangeFloorColor(gray);
+        //ChangeFloorColor(gray);
     }
 
     public override void OnActionReceived(ActionBuffers actions)
     {
-        motor = maxMotorTorque * actions.ContinuousActions[0];//Mathf.Clamp(actions.ContinuousActions[0], -1f, 1f);
-        steering = maxSteeringAngle * actions.ContinuousActions[1];//Mathf.Clamp(actions.ContinuousActions[1], -1f, 1f);
-        brake = Mathf.Clamp(actions.ContinuousActions[2], 0f, 1f);
+        float carRotation = transform.localEulerAngles.y <= 180f ? transform.localEulerAngles.y : transform.localEulerAngles.y - 360f;
+        motor = maxMotorTorque * actions.ContinuousActions[0];
+        steering = maxSteeringAngle * actions.ContinuousActions[1];
         HandleMotor(motor, brake);
         HandleSteering(steering);
         UpdateWheels();
-        goalDist = Vector3.Distance(transform.localPosition, parkingSpot.localPosition);
-        DistanceReward(goalDist, lastDistance);
-        AddReward(-0.01f);
         AgentIsParking();
 
-        if (Mathf.Abs(steering) > maxSteeringAngle) AddReward(-1f / MaxStep);
-        if (motor <= 0) AddReward(-1f / MaxStep);
-        if (StepCount == MaxStep) AddReward(loseReward);
+        goalDist = Vector3.Distance(transform.localPosition, parkingSpot.localPosition);
+        headingAngleNorm = (parkingSpot.position - transform.position).normalized;
+        float fuzzyGoalDist = fuzzyDistance.Evaluate(goalDist);
+        //float carDirection = goalDist > .4f ? Vector3.Dot(headingAngleNorm, transform.forward) : 1f;
+        float parkingLotDirection = goalDist > .4f ? Vector3.Dot(transform.forward, parkingSpot.up) : 1f;
+        //float fuzzyRewards = parkingLotDirection * carDirection * fuzzyGoalDist;
 
-        float carRotation = transform.localEulerAngles.y <= 180f ? transform.localEulerAngles.y : transform.localEulerAngles.y - 360f;
-
-        if (goalDist < .4f && parked)
+        //AddReward(carDirection*.1f);
+        //sumRewards += carDirection*.1f;
+        AddReward(parkingLotDirection * .1f);
+        sumRewards += parkingLotDirection * .1f;
+        AddReward(fuzzyGoalDist * .1f);
+        sumRewards += fuzzyGoalDist * .1f;
+        AddReward(-0.01f);
+        sumRewards += -0.01f;
+        
+        if (Mathf.Abs(steering) > maxSteeringAngle || motor == 0)
         {
-            // Agent is sufficiently aligned with the parking spot, more reward
-            if (Mathf.Abs(carRotation) < 5)
-            {
-                AddReward(alignedReward);
-                if (easyMode)
-                {
-                    numSuccessEasyMode++;
-                }
-                else
-                {
-                    Debug.Log("Parked with align bonus");
-                    numSuccess++;
-                }
-            }
-            else
-            {
-                AddReward(goalReward);
-
-                if (easyMode)
-                {
-                    numSuccessEasyMode++;
-                }
-                else
-                {
-                    Debug.Log("Parked with no align bonus");
-                    numSuccess++;
-                }
-
-            }
-            ChangeFloorColor(green);
-            EndEpisode();
+            AddReward(-1f / MaxStep);
+            sumRewards += -1f / MaxStep;
+        } 
+        if (motor == 0)
+        {
+            AddReward(-1f / MaxStep);
+            sumRewards += -1f / MaxStep;
         }
-        lastDistance = goalDist;
+        if (StepCount == MaxStep)
+        {
+            AddReward(loseReward);
+            sumRewards += loseReward;
+        }
     }
     private void HandleSteering(float steering)
     {
@@ -224,11 +196,6 @@ public class CarAgent : Agent
         frontLeftWheelCollider.motorTorque = motor;
         frontRightWheelCollider.motorTorque = motor;
 
-        float brakeForce = brake <= .8f ? 0f : brake * maxBrakeTorque;
-        frontLeftWheelCollider.brakeTorque = brakeForce;
-        frontRightWheelCollider.brakeTorque = brakeForce;
-        rearLeftWheelCollider.brakeTorque = brake;
-        rearRightWheelCollider.brakeTorque = brake;
     }
     private void UpdateWheels()
     {
@@ -247,11 +214,6 @@ public class CarAgent : Agent
         trans.position = pos;
     }
 
-    public void DistanceReward(float currentDistance, float lastDistance)
-    {
-        if (currentDistance < lastDistance) AddReward(.1f);
-        if (currentDistance > lastDistance) AddReward(-.2f);
-    }
 
     /// <summary>
     /// Checks if the agent is within the parking spot and if it is stopped for more than 1s
@@ -260,20 +222,31 @@ public class CarAgent : Agent
     {
         float carRotation = transform.localEulerAngles.y <= 180f ? transform.localEulerAngles.y : transform.localEulerAngles.y - 360f;
 
-        if (goalDist < .4f && Mathf.Abs(carRotation) < 15 && isParking == false)
+        if (goalDist <= .6f && Mathf.Abs(carRotation) < 105 && isParking == false)
         {
             parkingTime = Time.time;
             isParking = true;
+            AddReward(.5f);
+            sumRewards += .5f;
             parkingSpot.GetComponent<MeshRenderer>().material.color = green;
         }
 
-        if (goalDist < .4f && Mathf.Abs(carRotation) < 15 && isParking == true)
+        if (goalDist <= .6f && Mathf.Abs(carRotation) < 105 && isParking == true)
         {
             elapsed = Time.time - parkingTime;
-            if (elapsed > 1f) parked = true;
+            AddReward(.5f);
+            sumRewards += .5f;
+            if (elapsed > .5f)
+            {
+                AddReward(goalReward);
+                sumRewards += goalReward;
+                Debug.Log("Car successfully parked");
+                numSuccess++;
+                EndEpisode();
+            }
         }
 
-        if (goalDist > .4f)
+        if (goalDist > .6f)
         {
             isParking = false;
             parkingTime = 0f;
@@ -291,11 +264,12 @@ public class CarAgent : Agent
         sensor.AddObservation(agentPosNorm);
         sensor.AddObservation(parkingPosNorm);
 
-        goalDistAgent = transform.InverseTransformVector(parkingSpot.localPosition - transform.localPosition);
-        goalDistAgentNorm = goalDistAgent.normalized;
+        //goalDistAgent = transform.InverseTransformVector(parkingSpot.localPosition - transform.localPosition);
+        //goalDistAgentNorm = goalDistAgent.normalized;
 
-        // 3 values
-        sensor.AddObservation(goalDistAgentNorm);
+        // 4 values
+        sensor.AddObservation(headingAngleNorm);
+        sensor.AddObservation(Vector3.Dot(headingAngleNorm, transform.forward));
 
         velocityXNorm = rb.velocity.normalized.x;
         velocityZNorm = rb.velocity.normalized.z;
@@ -304,15 +278,14 @@ public class CarAgent : Agent
         sensor.AddObservation(velocityXNorm);
         sensor.AddObservation(velocityZNorm);
 
-        acceleration = (rb.velocity - lastVelocity) / Time.fixedDeltaTime;
-        lastVelocity = rb.velocity;
-        headingAngle = Vector3.SignedAngle(zDirection, transform.forward, Vector3.up);
-        headingAngleNorm = Vector3.SignedAngle(zDirection, transform.forward, Vector3.up) / 100f;
         float carRotation = transform.localEulerAngles.y <= 180f ? transform.localEulerAngles.y : transform.localEulerAngles.y - 360f;
 
-        // 1 value
-        //sensor.AddObservation(headingAngleNorm);
+        // 2 values
         sensor.AddObservation(carRotation);
+
+        // 2 values
+        sensor.AddObservation(Vector3.Distance(transform.localPosition, parkingSpot.localPosition));
+        sensor.AddObservation(Vector3.Dot(transform.forward, parkingSpot.up));
     }
 
     public override void Heuristic(in ActionBuffers actionsOut)
@@ -320,16 +293,16 @@ public class CarAgent : Agent
         ActionSegment<float> continuousActionsOut = actionsOut.ContinuousActions;
         continuousActionsOut[0] = Input.GetAxis("Vertical");
         continuousActionsOut[1] = Input.GetAxis("Horizontal");
-        continuousActionsOut[2] = Input.GetAxis("Jump");
+        //continuousActionsOut[2] = Input.GetAxis("Jump");
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         AddReward(-1f);
+        sumRewards += -1f;
         numCollisions++;
         if (numCollisions > 10)
         {
-            Debug.Log("Episode ended due excessive crashing");
             EndEpisode();
         }
     }
@@ -337,17 +310,22 @@ public class CarAgent : Agent
     private void OnCollisionStay(Collision collision)
     {
         AddReward(-.5f);
+        sumRewards += -.5f;
     }
 
     private void Update()
     {
-        Debug.DrawLine(rb.position, parkingSpot.position, Color.green);
-    }
+        string roundedThrottle = motor.ToString("F3");
+        string roundedSteering = steering.ToString("F3");
+        string totalRewardsString = sumRewards.ToString("F3");
+        throttleText.text = $"Throttle: {roundedThrottle}";
+        steeringText.text = $"Steering: {roundedSteering}";
+        totalRewards.text = $"Sum of Rewards: {totalRewardsString}";
 
-    private void ChangeFloorColor(Color color)
-    {
-        MeshRenderer mr = GameObject.FindGameObjectWithTag("floor").GetComponent<MeshRenderer>();
-        material = mr.material;
-        material.SetColor("_Color", color);
+        float b = fuzzyDistance.Evaluate(goalDist);
+        float c = goalDist > .4f ? Vector3.Dot(transform.forward, parkingSpot.up) : 1f;
+        distanceReward.text = $"Distance: {(b*.1f).ToString("F3")}";
+        headingReward.text = $"Heading: {(c *.1f).ToString("F3")}";
+        //Debug.DrawRay(rb.position,  (parkingSpot.position - transform.position).normalized, Color.blue);
     }
 }
