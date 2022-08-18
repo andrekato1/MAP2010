@@ -47,7 +47,7 @@ Given an MDP $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \math
 \begin{definition}{State-Value Function}{statevalue_func}
       The \textit{state-value function} $v_\pi(s)$ of an MDP is the expected return starting from state $s$ and following policy $\pi$ afterwards
       \begin{equation}\label{eq:statevalue_func_def}
-            v_\pi(s) = \mathbb{E}_\pi[G_t \mid S_t = s] = \mathbb{E}_\pi\left[\sum^{\infty}_{k=0}\gamma^kR_{t+k+1}\mid S_t = s\right]
+            v_\pi(s) = \mathbb{E}_\pi[G_t \mid S_t = s] = \mathbb{E}_\pi\left[\sum^{\infty}_{k=0}\gamma^kR_{t+k+1} \mid S_t = s\right]
       \end{equation}  
 \end{definition}
 

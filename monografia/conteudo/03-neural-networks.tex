@@ -43,3 +43,124 @@ The human brain processes information processes in order $10^{-3}$ seconds, havi
     \item \textbf{Uniformity of Analysis and Design:} neural networks enjoy universality as information processors, in a sense that the same notation is used in all domains involving the application of neural networks, making it possible to share techniques and theories between models with different purposes.
     \item \textbf{Neurobiological Analogy:} the design of a neural network is motivated by analogy with the brain, which is a living proof that parallel processing is not only physically possible, but also fast and powerful.
 \end{itemize}
+
+\section{Perceptron}
+In order to create a model that would function similarly to a human brain, the psychologist and neurobiologist Frank Rosenblatt proposed the \textit{perceptron} model. In his words, "a probabilistic model for information storage and organization in the brain" \cite{rosenblatt:perceptron}.
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{perceptron}
+    \caption{Source: \href{https://medium.com/@stanleydukor/neural-representation-of-and-or-not-xor-and-xnor-logic-gates-perceptron-algorithm-b0275375fea1}{Medium}}
+\end{figure}
+In this artificial neuron, we have the following structures:
+\begin{itemize}
+    \item An input vector $x \in \mathbb{R}^n$
+    \item The synaptic weights $w \in \mathbb{R}^n$ responsible for weighing the values from the input vector. Large and positive values indicate higher relevance. Conversely, small and negative values indicate lower relevance.
+    \item A bias $b \in \mathbb{R}$, which can be interpreted as how easily a neuron is activated.
+    \item A linear combinator $\Sigma$ weighing the input signals into a single scalar value:
+    \[
+        z = \Sigma(x) = \sum^{i=1}_{n}w_i x_i + b   
+    \]
+    \item An activation function $\phi \colon \mathbb{R} \to \mathbb{R}$ mapping the weighted sum $z$ to an output $\phi(z)$.
+\end{itemize}
+In general, given $w \in \mathbb{R}^n$ and $b \in \mathbb{R}$, the perceptron model can be defined as a function $h \colon \mathbb{R}^n \to \mathbb{R}$ such that
+\[
+    h(x \mid w, b) = \phi(w^Tx + b)    
+\]
+
+From the perceptron, multiple models have been derived, but we are particularly interested in a specific \textit{feed-forward} neural network, called \textit{multilayer perceptron}.
+
+\section{Multilayer Perceptron}
+In a multilayer perceptron, the perceptrons (neurons) are stacked in mutiple layers in such a way that every node on each layer is connected to all other nodes on the next layer, without any cycles, characterizing the \textit{feed-forward} nature of the model.
+
+The first layer is the input layer, and its units take the values of the input vector. The last layer is the output layer, and it has one unit for each value the network outputs. In the context of classification, it could have a single unit in the case of binary classifiation, or $K$ units in the case of $K$-class classification. All the layers in between these are called hidden layers. It's called hidden because we don't know ahead of time what these units should compute, and this needs to be discovered during learning \cite{grosse2021}.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{mlp}
+    \caption{Source: \href{https://kinder-chen.medium.com/multilayer-perceptron-55bb39a08133}{Medium}}
+\end{figure}
+Such as the perceptron, the MLP can also be defined as a function. Denote by $h_i^{(l)}$ the $i$-th unit in the $l$-th hidden layer and by $y$ the output unit. Note that each unit has its own bias, and there's a weight for every pair of units in two consecutive layers. Therefore, the network's computation can be expressed as:
+\begin{align}
+    h_i^{(1)} &= \phi^{(1)} \left(\sum_j w_{ij}^{(1)}x_j + b_i^{(1)}\right) \nonumber \\
+    h_i^{(2)} &= \phi^{(2)} \left(\sum_j w_{ij}^{(2)}h_j^{(1)} + b_i^{(2)}\right) \\
+    y_i &= \phi^{(3)} \left(\sum_j w_{ij}^{(3)}h_j^{(2)} + b_i^{(3)}\right) \nonumber
+\end{align}
+
+An important result for MLP models is the Universal Approximation Theorem \cite{journals/mcss/Cybenko89}:
+\begin{theorem}{Universal Approximation Theorem}{}
+    Let $\sigma: \mathbb{R} \rightarrow \mathbb{R}$ be a continuous, bounded, non-constant and monotonically decreasing function. Let $I_{n}=[0,1]^{n}$ be the n-dimensional hypercube and $C\left(I_{n}\right)$ the space of continuous functions in $I_{n}$. Then, given $f \in C\left(I_{n}\right)$ independent of $\sigma$ and $\epsilon>0$, there exists $N \in \mathbb{N}, w_{i} \in \mathbb{R}^{n}, b_{i} \in \mathbb{R}$ and $\alpha_{i} \in \mathbb{R}$, where $i=1, \ldots, N$ such that 
+    \[
+    \begin{aligned}
+    &F(x)=\sum_{i=1}^{N} \alpha_{i} \sigma\left(w_{i} . x+b_{i}\right), \\
+    &|F(x)-f(x)|<\epsilon,
+    \end{aligned}
+    \]
+    for all $x \in I_{n}$.
+\end{theorem}
+The theorem estabilishes that for any continuous function $f$ on a compact subset of $I_n$ can be approximated by a feed-forward neural network with only one hidden layer and finite number of units.
+
+It's important to note that this doesn't imply that one neural network can accurately approximate any arbitrary continuous function under any circumstances. It is required that the neural network and its parameters (number of hidden units, number of learning iterations etc.) be adjusted for each unique function. Then, with the right parameters, it is possible to achieve any desired accuracy $\epsilon$.
+
+Cybenko proved the theorem specifically for \textit{sigmoid} activation functions $Sigmoid(x)=\dfrac{1}{1+e^{-x}}$
+\begin{figure}[H]
+\begin{tikzpicture}
+    \begin{axis}[
+    	legend pos=north west,
+        axis x line=middle,
+        axis y line=middle,
+        x tick label style={/pgf/number format/fixed,
+                            /pgf/number format/fixed zerofill,
+                            /pgf/number format/precision=1},
+        y tick label style={/pgf/number format/fixed,
+                            /pgf/number format/fixed zerofill,
+                            /pgf/number format/precision=1},
+        grid = major,
+        width=16cm,
+        height=8cm,
+        grid style={dashed, gray!30},
+        xmin=-1,     % start the diagram at this x-coordinate
+        xmax= 1,    % end   the diagram at this x-coordinate
+        ymin= 0,     % start the diagram at this y-coordinate
+        ymax= 1,   % end   the diagram at this y-coordinate
+        %axis background/.style={fill=white},
+        xlabel=x,
+        ylabel=y,
+        tick align=outside,
+        enlargelimits=false]
+      % plot the stirling-formulae
+      \addplot[domain=-1:1, red, ultra thick,samples=500] {1/(1+exp(-5*x))};
+    \end{axis}
+\end{tikzpicture}
+\caption{Graph for the Sigmoid function.}
+\end{figure}
+Other activation functions have also been shown to satisfy the theorem, such as:
+\begin{itemize}
+    \item Hyperbolic Tangent
+    \[
+        \phi(z) = \frac{2}{1+e^{-2z}}-1 = 2Sigmoid(2z) - 1    
+    \]
+    \item Softsign
+    \[
+        \phi(z) = \frac{z}{1+|z|}
+    \]
+\end{itemize}
+Recently, other activation functions have also proven to be very effective as approximators, but don't satisfy the theorem, since they're not bounded:
+\begin{itemize}
+    \item Rectified Linear Unit (ReLU)
+    \[
+        \phi(z) = \max\{0, z\}    
+    \]
+    \item Softplus
+    \[
+        \phi(z) = ln(e^z+1)
+    \]
+    \item Exponential Linear Unit (ELU)
+    \begin{equation*}
+        \phi(z)=
+            \begin{cases}
+                \alpha(e^z-1) & \text{if } z < 0 \\
+                z & \text{if } z \geq 0
+            \end{cases}
+    \end{equation*}
+    for $\alpha \in \mathbb{R}$.
+\end{itemize}
+
+The theorem also has an extension for the case with multiple hidden layers and outputs, but will not be addressed here.
