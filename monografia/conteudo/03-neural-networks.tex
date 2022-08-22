@@ -1,7 +1,7 @@
 
 \chapter{Neural Networks}
 
-In this chapter, we'll briefly discuss some concepts on \textit{Neural Networks} (or NNs) and a little bit of \textit{Machine Learning}. NNs will later be used as a function approximator in the Policy Gradient chapter and was also a subject of study during the making of this work.
+In this chapter, some concepts on \textit{Neural Networks} (or NNs) will be discussed as well as a little bit of \textit{Machine Learning}. As stated in the previous chapter, we'll be working with parameterized policies, and NNs will later be used as an approximator for said policies.
 
 \section{Machine Learning}
 Nowadays, as the Internet continues to expand, we have more and more information available and stored everyday. Due to that large volume of data, analyzing it and extracting meaningful information has become a task increasingly difficult for humans to perform. From that challenge, the concept of \textit{Machine Learning} arises.
@@ -65,14 +65,12 @@ In general, given $w \in \mathbb{R}^n$ and $b \in \mathbb{R}$, the perceptron mo
 \[
     h(x \mid w, b) = \phi(w^Tx + b)    
 \]
-
 From the perceptron, multiple models have been derived, but we are particularly interested in a specific \textit{feed-forward} neural network, called \textit{multilayer perceptron}.
 
 \section{Multilayer Perceptron}
 In a multilayer perceptron, the perceptrons (neurons) are stacked in mutiple layers in such a way that every node on each layer is connected to all other nodes on the next layer, without any cycles, characterizing the \textit{feed-forward} nature of the model.
 
 The first layer is the input layer, and its units take the values of the input vector. The last layer is the output layer, and it has one unit for each value the network outputs. In the context of classification, it could have a single unit in the case of binary classifiation, or $K$ units in the case of $K$-class classification. All the layers in between these are called hidden layers. It's called hidden because we don't know ahead of time what these units should compute, and this needs to be discovered during learning \cite{grosse2021}.
-
 \begin{figure}[H]
     \includegraphics[width=\textwidth]{mlp}
     \caption{Source: \href{https://kinder-chen.medium.com/multilayer-perceptron-55bb39a08133}{Medium}}
@@ -83,14 +81,13 @@ Such as the perceptron, the MLP can also be defined as a function. Denote by $h_
     h_i^{(2)} &= \phi^{(2)} \left(\sum_j w_{ij}^{(2)}h_j^{(1)} + b_i^{(2)}\right) \\
     y_i &= \phi^{(3)} \left(\sum_j w_{ij}^{(3)}h_j^{(2)} + b_i^{(3)}\right) \nonumber
 \end{align}
-
 An important result for MLP models is the Universal Approximation Theorem \cite{journals/mcss/Cybenko89}:
-\begin{theorem}{Universal Approximation Theorem}{}
+\begin{theorem}{Universal Approximation Theorem}
     Let $\sigma: \mathbb{R} \rightarrow \mathbb{R}$ be a continuous, bounded, non-constant and monotonically decreasing function. Let $I_{n}=[0,1]^{n}$ be the n-dimensional hypercube and $C\left(I_{n}\right)$ the space of continuous functions in $I_{n}$. Then, given $f \in C\left(I_{n}\right)$ independent of $\sigma$ and $\epsilon>0$, there exists $N \in \mathbb{N}, w_{i} \in \mathbb{R}^{n}, b_{i} \in \mathbb{R}$ and $\alpha_{i} \in \mathbb{R}$, where $i=1, \ldots, N$ such that 
     \[
     \begin{aligned}
-    &F(x)=\sum_{i=1}^{N} \alpha_{i} \sigma\left(w_{i} . x+b_{i}\right), \\
-    &|F(x)-f(x)|<\epsilon,
+    &F(x)=\sum_{i=1}^{N} \alpha_{i} \sigma(w_ix+b_i), \\
+    &|F(x) - f(x)| < \epsilon
     \end{aligned}
     \]
     for all $x \in I_{n}$.
@@ -98,8 +95,8 @@ An important result for MLP models is the Universal Approximation Theorem \cite{
 The theorem estabilishes that for any continuous function $f$ on a compact subset of $I_n$ can be approximated by a feed-forward neural network with only one hidden layer and finite number of units.
 
 It's important to note that this doesn't imply that one neural network can accurately approximate any arbitrary continuous function under any circumstances. It is required that the neural network and its parameters (number of hidden units, number of learning iterations etc.) be adjusted for each unique function. Then, with the right parameters, it is possible to achieve any desired accuracy $\epsilon$.
-
-Cybenko proved the theorem specifically for \textit{sigmoid} activation functions $Sigmoid(x)=\dfrac{1}{1+e^{-x}}$
+Cybenko proved the theorem specifically for the \textit{sigmoid} activation function, defined as:
+\[Sigmoid(x)=\dfrac{1}{1+e^{-x}}\]
 \begin{figure}[H]
 \begin{tikzpicture}
     \begin{axis}[
@@ -131,7 +128,7 @@ Cybenko proved the theorem specifically for \textit{sigmoid} activation function
 \end{tikzpicture}
 \caption{Graph for the Sigmoid function.}
 \end{figure}
-Other activation functions have also been shown to satisfy the theorem, such as:
+But other activation functions have also been shown to satisfy the theorem, such as:
 \begin{itemize}
     \item Hyperbolic Tangent
     \[
@@ -142,7 +139,7 @@ Other activation functions have also been shown to satisfy the theorem, such as:
         \phi(z) = \frac{z}{1+|z|}
     \]
 \end{itemize}
-Recently, other activation functions have also proven to be very effective as approximators, but don't satisfy the theorem, since they're not bounded:
+Recently, some unbounded activation functions have also proven to be very effective as approximators, even while not satisfying the theorem:
 \begin{itemize}
     \item Rectified Linear Unit (ReLU)
     \[
@@ -162,5 +159,18 @@ Recently, other activation functions have also proven to be very effective as ap
     \end{equation*}
     for $\alpha \in \mathbb{R}$.
 \end{itemize}
-
 The theorem also has an extension for the case with multiple hidden layers and outputs, but will not be addressed here.
+
+Below, we have an implementation in Python of a MLP, using Pytorch, one of the most famous machine learning frameworks for Python. This is the code for the actual neural network we'll use later.
+\begin{program}
+    \lstinputlisting[
+      language=Python,
+      style=wider,
+      functions={},
+      specialidentifiers={},
+    ]
+    {conteudo/network.py}
+  
+    \caption{Simple feed-forward MLP}
+  \end{program}
+We are using a simple network with only one hidden layer with 64 units and a single input and output. As described in the \href{https://pytorch.org/docs/stable/generated/torch.nn.Linear.html}{official documentation}, the \verb|torch.nn.Linear| function applies the linear transformation $y = w^Tx+b$ and \verb|torch.nn.functional.relu| is the ReLU activation function.

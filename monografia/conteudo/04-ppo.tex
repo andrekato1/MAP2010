@@ -1,0 +1,15 @@
+\chapter{Proximal Policy Optimization}
+Proximal policy optimization (PPO) was proposed by \cite{https://doi.org/10.48550/arxiv.1707.06347} as an alternative to already existing policy gradient (PG) methods, incorporating some concepts from trust region policy optimization (TRPO) methods, retaining some of its benefits while being significantly easier to implement and being less computationally complex.
+\section{Policy Gradient}
+For policy gradient, we consider parameterized policies, which can select actions without relying on a value function. The value function is still useful to learn the policy parameters, but it's not strictly necessary to select an action. This parameterization can be done in any way as long as the policy is differentiable with respect to its parameters.
+
+Denoting by $\boldsymbol\theta \in \mathbb{R}^d$ the policy parameter vector, the probability of selecting action $a$ at time $t$ given that the environment is in state $s$ with parameter $\boldsymbol\theta$ is
+\[
+    \pi(a \mid s, \boldsymbol\theta) = P\{A_t = a \mid S_t = s, \boldsymbol\theta_t = \boldsymbol\theta\}   
+\]
+We also define a performance measure $J(\boldsymbol\theta) = v_{\pi_{\boldsymbol\theta}}(s_0)$, where $s_0$ is some starting state and $v_{\pi_{\boldsymbol\theta}}$ is the true value function for the parameterized policy $\pi_{\boldsymbol\theta}$
+
+\section{Trust Region Methods}
+TRPO updates policies by taking the largest step possible to improve performance, while satisfying a special constraint on how close the new and old policies are allowed to be. The constraint is expressed in terms of KL-Divergence, a measure of (something like, but not exactly) distance between probability distributions.
+
+This is different from normal policy gradient, which keeps new and old policies close in parameter space. But even seemingly small differences in parameter space can have very large differences in performance—so a single bad step can collapse the policy performance. This makes it dangerous to use large step sizes with vanilla policy gradients, thus hurting its sample efficiency. TRPO nicely avoids this kind of collapse, and tends to quickly and monotonically improve performance.

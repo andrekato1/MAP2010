@@ -225,7 +225,17 @@ uma dedicatória ou epígrafe.
 \chapter*{Agradecimentos}
 \epigrafe{Ninguem é tão sábio que não tenha algo para aprender e nem tão tolo que não tenha algo a ensinar.}{Blaise Pascal}
 
-%Agradeço e dedico esse trabalho ao meu pai e maior mentor, Marco, pelo apoio incondicional durante toda a minha trajetória e por nunca ter medido esforços para me ajudar, me permitindo seguir meus sonhos. Agradeço ao meu orientador Alexandre Roma por toda a sua atenção, cuidado e orientação durante a realização desse trabalho. Por fim, agradeço aos meus amigos Arthur, Vinícius, Luma, João, Victor, Yukio e muitos outros que gostaria de adicionar à já extensa lista, por ajudarem a tornar leves os dias duros. 
+%Agradeço e dedico esse trabalho ao meu pai e maior mentor, Marco, pelo apoio incondicional durante toda a minha trajetória e por nunca ter medido esforços para me ajudar, me permitindo seguir meus sonhos.
+
+%Ao meu orientador Alexandre Roma por toda a sua atenção, cuidado e orientação.
+
+%Aos meus amigos Vinícius Moreno e Lucas Dário pelas suas contribuições ao longo da realização desse trabalho
+
+%Aos meus amigos Victor, Luma, João, Yukio, Andrew e muitos outros que gostaria de adicionar à já extensa lista, por todo o apoio e momentos de diversão. 
+
+%Ao professor David Silver da University College London por disponibilizar gratuitamente suas aulas e materiais
+
+%Ao \href{https://arztsamuel.github.io/index.html}{Samuel Arzt} da University of Applied Sciences Salzburg, autor do \href{https://www.youtube.com/watch?v=VMp6pq6_QjI&ab_channel=SamuelArzt}{vídeo} que motivou e inspirou a realização desse trabalho.
 
 \input{conteudo/resumoabstract}
 
@@ -272,7 +282,10 @@ uma dedicatória ou epígrafe.
    PG & Policy Gradient\\
    ANN & Artificial Neural Network\\
    NN & Neural Network\\
+   FF & Feed-forward\\
    MLP & Multilayer Perceptron\\
+   ReLU & Rectified Linear Unit\\
+   ELU & Exponential Linear Unit\\
    IME & Instituto de Matemática e Estatística\\
    USP & Universidade de São Paulo
 \end{tabular}
@@ -318,9 +331,9 @@ uma dedicatória ou epígrafe.
 \input{conteudo/01-introduction}
 \input{conteudo/02-mdp}
 \input{conteudo/03-neural-networks}
-\input{conteudo/04-policy-gradient}
-\input{conteudo/05-trpo}
-\input{conteudo/06-experiments}
+\input{conteudo/04-ppo}
+\input{conteudo/05-experiments}
+\input{conteudo/06-conclusions}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% APÊNDICES E ANEXOS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -362,24 +375,6 @@ uma dedicatória ou epígrafe.
 \input{conteudo/apendice-exemplo-pseudocodigo}
 \par
 
-%%%% Anexos %%%%
-
-\makeatletter
-\if@openright\cleardoublepage\else\clearpage\fi
-\makeatother
-
-\pagestyle{appendix} % repete o anterior, caso você não use apêndices
-
-\annex
-
-% \addappheadtotoc acrescenta a palavra "Anexo" ao sumário; se
-% só há anexos, sem apêndices, provavelmente não é necessário.
-\addappheadtotoc
-
-\input{conteudo/anexo-exemplo-faq}
-\par
-
-
 %%%%%%%%%%%%%%% SEÇÕES FINAIS (BIBLIOGRAFIA E ÍNDICE REMISSIVO) %%%%%%%%%%%%%%%%
 
 % O comando backmatter desabilita a numeração de capítulos.
@@ -397,7 +392,5 @@ uma dedicatória ou epígrafe.
   %title=\bibname\label{bibliografia}, % "Bibliografia"
   heading=bibintoc, % Inclui a bibliografia no sumário
 ]
-
-\printindex % imprime o índice remissivo no documento (opcional)
 
 \end{document}
