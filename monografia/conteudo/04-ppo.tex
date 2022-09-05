@@ -44,7 +44,21 @@ Then, using the identity above, we are able to express the gradient as an expect
     &= \sum_{s \in \mathcal{S}} d^{\pi_{\boldsymbol\theta}}(s) \sum_{a \in \mathcal{A}} q_{\pi_{\boldsymbol\theta}}(s, a) \pi_{\boldsymbol\theta}(a \mid s)\nabla_{\boldsymbol\theta}\log{\pi_{\boldsymbol\theta}(a \mid s)}\nonumber\\
     &= \mathbb{E}_\pi[q_{\pi_{\boldsymbol\theta}}(s, a)\nabla_{\boldsymbol\theta}\log{\pi_{\boldsymbol\theta}(a \mid s)}] \label{eq:grad-log-prob}
 \end{align}
-where $\mathbb{E}_\pi$ is the expectation when $s \sim d^{\pi_{\boldsymbol\theta}}$ and $a \sim \pi_{\boldsymbol\theta}$, i.e. both state and action distributions follow policy $\pi_{\boldsymbol\theta}$. Equation \ref{eq:grad-log-prob} is also known as \textit{grad-log-prob} and gives rise to an important result which is extensively used throughout policy gradient theory.
+where $\mathbb{E}_\pi$ is the expectation when $s \sim d^{\pi_{\boldsymbol\theta}}$ and $a \sim \pi_{\boldsymbol\theta}$, i.e. both state and action distributions follow policy $\pi_{\boldsymbol\theta}$. Expressing the gradient as an expectation means we can estimate it using a sample mean. We let the agent interact with the environment following a policy $\pi_\theta$ and collect its \textit{trajectory} $\tau_i = \{s_0, a_0, \dots, s_{T+1}\}$ over $N$ episodes, obtaining a set $\mathcal{D} = \{\tau_i\}_{i=1,\dots,N}$ of trajectories. Then, the policy gradient is estimated as:
+\begin{equation}\label{pg_estimator}
+    \hat{g} = \frac{1}{|\mathcal{D}|}\sum_{\tau \in \mathcal{D}} \sum_{t=0}^{T} q_{\pi_{\boldsymbol\theta}}(s_t, a_t)\nabla_{\boldsymbol\theta}\log{\pi_{\boldsymbol\theta}(a_t \mid s_t)}
+\end{equation}
+That is, we compute the expression inside the expectation in each episode and take the sample mean as an estimator for the gradient, allowing us to take an update step.
+
+The policy gradient, while elegant, has shown to be problematic in practical problems:
+
+\textbf{Sample inefficiency.} In order to run policy gradient, we need to sample from our policy millions and millions of times, since the estimation is done using Monte Carlo, averaging over a number of trial runs. Summing over all steps in a single trajectory could be very expensive computationally depending on the environment. It is also worth noting sample inefficiency is not a problem exclusive to policy gradient, it is an issue that has long plagued a lot of other RL algorithms.
+
+\textbf{Slow convergence.} Sampling millions of trajectories is already inherently slow, and the high variance makes optimization very inefficient.
+
+\textbf{High variance.} The high variance comes from the fact that, in RL, we are often dealing with very general problems. In our case, teaching a car to navigate through a parking lot. When we sample from an untrained policy, we are bound to observe highly variable behaviors, since we begin with a policy whose distribution of actions over states is effectively uniform. Of course, as the policy improves, the distribution is shaped to be unimodal or multimodal over some successful actions given a state. But in order to get there, we need the model to observe the outcomes of many different actions for each possible state. If we consider the action and state spaces to be continuous, the problem is even worse, since visiting every action-state pair possible is computationally intractable.
+
+Equation \ref{eq:grad-log-prob}, also known as \textit{grad-log-prob}, gives rise to an important result, which was used to derive a lot of other methods as an improvement over the \textit{vanilla} policy gradient.
 \begin{lemma}{Expected Grad-Log-Prob (EGLP)}{eglp}
     Suppose that $P_\theta$ is a parameterized probability distribution over a random variable $x$. Then:
     \begin{equation}
@@ -68,12 +82,20 @@ where $\mathbb{E}_\pi$ is the expectation when $s \sim d^{\pi_{\boldsymbol\theta
     \end{align}
 \end{proof}
 
-The policy gradient theorem lays the foundation for many policy gradient algorithms. The \textit{vanilla policy gradient} update proposed above is unbiased, but has high variance.
-
 As an consequence of the above lemma, \cite{https://doi.org/10.48550/arxiv.1506.02438} proposed a more general form for policy gradients:
 \begin{equation}
-    \nabla_{\boldsymbol\theta} J(\boldsymbol\theta) = \mathbb{E}_\pi\left[\sum_{t=0}^\infty\Psi_t\nabla_{\boldsymbol\theta}\log{\pi_{\boldsymbol\theta}(a \mid s)}\right]
+    \nabla_{\boldsymbol\theta} J(\boldsymbol\theta) = \mathbb{E}_\pi\left[\sum_{t=0}^\infty\Phi_t\nabla_{\boldsymbol\theta}\log{\pi_{\boldsymbol\theta}(a \mid s)}\right]
 \end{equation}
+where $\Phi_t$ may be any of these functions:
+\begin{itemize}
+    \item $\sum_{t=0}^{\infty} r_t:$ sum of total rewards.
+    \item $\sum_{t^{\prime}=t}^{\infty} r_{t^{\prime}}$ : reward following action $a_t$.
+    \item $Q^\pi\left(s_t, a_t\right)$ : state-action value function.
+    \item $A^\pi\left(s_t, a_t\right)$ : advantage function.
+\end{itemize}
+\cite{https://doi.org/10.48550/arxiv.1506.02438} lists all the possible functions. For trust region methods and proximal policy optimization, $\Phi_t$ is chosen to be the advantage function $A_\pi\left(s_t, a_t\right)$.
+
+The formulation of policy gradients with advantage functions is rather common, but we then need a way to estimate it. In this work, we will use \textit{generalized advantage estimation} as described in \cite{https://doi.org/10.48550/arxiv.1506.02438}.
 
 \section{Trust Region Methods}
 TRPO updates policies by taking the largest step possible to improve performance, while satisfying a special constraint on how close the new and old policies are allowed to be. The constraint is expressed in terms of KL-Divergence, a measure of (something like, but not exactly) distance between probability distributions.
