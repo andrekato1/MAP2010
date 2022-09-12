@@ -48,6 +48,7 @@ public class CarAgent : Agent
     float goalDist;
     Vector3 defaultInitPos = new Vector3(11.34f, 7.527747f, 0f);
     bool initRandomPos = false;
+    float parkingLotDirection;
     Rigidbody rb;
     // ------------------
 
@@ -63,7 +64,7 @@ public class CarAgent : Agent
 
     // Rewards
     public float goalReward = 1000f;
-    public float alignedReward = 3f;
+    public float alignedReward = 5000f;
     public float loseReward = -1000f;
     float sumRewards;
     // ------------------
@@ -75,6 +76,7 @@ public class CarAgent : Agent
     public int numCollisions;
     public int numEpisode = 0;
     public int numSuccess = 0;
+    public int numSuccessAligned = 0;
     private Color green = new Color(0.29412f, 0.70980f, 0.26275f);
     private Color red = new Color(1f, 0f, 0f);
     // ------------------
@@ -152,7 +154,7 @@ public class CarAgent : Agent
         headingAngleNorm = (parkingSpot.position - transform.position).normalized;
         float fuzzyGoalDist = fuzzyDistance.Evaluate(goalDist);
         //float carDirection = goalDist > .4f ? Vector3.Dot(headingAngleNorm, transform.forward) : 1f;
-        float parkingLotDirection = goalDist > .4f ? Vector3.Dot(transform.forward, parkingSpot.up) : 1f;
+        parkingLotDirection = goalDist > .4f ? Vector3.Dot(transform.forward, parkingSpot.up) : 1f;
         //float fuzzyRewards = parkingLotDirection * carDirection * fuzzyGoalDist;
 
         //AddReward(carDirection*.1f);
@@ -169,11 +171,7 @@ public class CarAgent : Agent
             AddReward(-1f / MaxStep);
             sumRewards += -1f / MaxStep;
         } 
-        if (motor == 0)
-        {
-            AddReward(-1f / MaxStep);
-            sumRewards += -1f / MaxStep;
-        }
+
         if (StepCount == MaxStep)
         {
             AddReward(loseReward);
@@ -222,31 +220,39 @@ public class CarAgent : Agent
     {
         float carRotation = transform.localEulerAngles.y <= 180f ? transform.localEulerAngles.y : transform.localEulerAngles.y - 360f;
 
-        if (goalDist <= .6f && Mathf.Abs(carRotation) < 105 && isParking == false)
+        if (goalDist <= .65f && parkingLotDirection > 0.9f && isParking == false)
         {
             parkingTime = Time.time;
             isParking = true;
-            AddReward(.5f);
-            sumRewards += .5f;
+            //AddReward(.5f);
+            //sumRewards += .5f;
             parkingSpot.GetComponent<MeshRenderer>().material.color = green;
         }
 
-        if (goalDist <= .6f && Mathf.Abs(carRotation) < 105 && isParking == true)
+        if (goalDist <= .65f && parkingLotDirection >= 0.9f && isParking == true)
         {
             elapsed = Time.time - parkingTime;
-            AddReward(.5f);
-            sumRewards += .5f;
+            //AddReward(.5f);
+            //sumRewards += .5f;
             if (elapsed > .5f)
             {
+                if (parkingLotDirection >= 0.97) {
+                    AddReward(alignedReward);
+                    sumRewards += goalReward;
+                    Debug.Log("Car successfully parked with align bonus");
+                    numSuccess++;
+                    numSuccessAligned++;
+                    //EndEpisode();
+                }
                 AddReward(goalReward);
                 sumRewards += goalReward;
                 Debug.Log("Car successfully parked");
                 numSuccess++;
-                EndEpisode();
+                //EndEpisode();
             }
         }
 
-        if (goalDist > .6f)
+        if (goalDist > .65f)
         {
             isParking = false;
             parkingTime = 0f;
@@ -309,8 +315,8 @@ public class CarAgent : Agent
 
     private void OnCollisionStay(Collision collision)
     {
-        AddReward(-.5f);
-        sumRewards += -.5f;
+        AddReward(-1f);
+        sumRewards += -1f;
     }
 
     private void Update()
@@ -321,7 +327,6 @@ public class CarAgent : Agent
         throttleText.text = $"Throttle: {roundedThrottle}";
         steeringText.text = $"Steering: {roundedSteering}";
         totalRewards.text = $"Sum of Rewards: {totalRewardsString}";
-
         float b = fuzzyDistance.Evaluate(goalDist);
         float c = goalDist > .4f ? Vector3.Dot(transform.forward, parkingSpot.up) : 1f;
         distanceReward.text = $"Distance: {(b*.1f).ToString("F3")}";

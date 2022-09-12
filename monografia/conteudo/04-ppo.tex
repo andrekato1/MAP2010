@@ -90,15 +90,33 @@ where $\Phi_t$ may be any of these functions:
 \begin{itemize}
     \item $\sum_{t=0}^{\infty} r_t:$ sum of total rewards.
     \item $\sum_{t^{\prime}=t}^{\infty} r_{t^{\prime}}$ : reward following action $a_t$.
-    \item $Q^\pi\left(s_t, a_t\right)$ : state-action value function.
-    \item $A^\pi\left(s_t, a_t\right)$ : advantage function.
+    \item $q_\pi\left(s_t, a_t\right)$ : state-action value function.
+    \item $A_\pi\left(s_t, a_t\right)$ : advantage function.
 \end{itemize}
 \cite{https://doi.org/10.48550/arxiv.1506.02438} lists all the possible functions. For trust region methods and proximal policy optimization, $\Phi_t$ is chosen to be the advantage function $A_\pi\left(s_t, a_t\right)$.
 
-The formulation of policy gradients with advantage functions is rather common, but we then need a way to estimate it. In this work, we will use \textit{generalized advantage estimation} as described in \cite{https://doi.org/10.48550/arxiv.1506.02438}.
+The formulation of policy gradients with advantage functions is rather common, but we then need a way to estimate it. The most known method is \textit{generalized advantage estimation} as described in \cite{https://doi.org/10.48550/arxiv.1506.02438}.
 
-\section{Trust Region Methods}
-TRPO updates policies by taking the largest step possible to improve performance, while satisfying a special constraint on how close the new and old policies are allowed to be. The constraint is expressed in terms of KL-Divergence, a measure of (something like, but not exactly) distance between probability distributions.
+\section{Trust Region Policy Optimization}
+TRPO updates policies by taking the largest step possible to improve performance, while satisfying a special constraint on how close the new and old policies are allowed to be.
 
-This is different from normal policy gradient, which keeps new and old policies close in parameter space. But even seemingly small differences in parameter space can have very large differences in performance—so a single bad step can collapse the policy performance. This makes it dangerous to use large step sizes with vanilla policy gradients, thus hurting its sample efficiency. TRPO nicely avoids this kind of collapse, and tends to quickly and monotonically improve performance.
+Normal policy gradient keeps new and old policies close in parameter space, but even small differences in parameter space can have a large impact in performance, such that a single bad step can collapse the policy performance. Thus, it is dangerous to use large step sizes with vanilla policy gradients, which ultimately makes the method very sample inefficient. TRPO not only avoids this kind of collapse, but also tends to quickly and monotonically improve performance.
 
+The way TRPO achieves this is by guaranteeing that the policy doesn't change too much in comparison to the old one using Kullback-Leibler divergence. KL divergence is a statistical measure of how different a probability distribution is from another.
+
+The objective function in TRPO is
+\begin{equation}
+    J(\theta) = \displaystyle\mathop{\mathbb{E}}_{a \sim \pi_{\theta_\text{old}}}\left[\frac{\pi_{\theta}(a \mid s)}{\pi_{\theta_\text{old}}(a \mid s)}\hat{A}_{\pi_{\theta_\text{old}}}\right]
+\end{equation}
+and the goal is to maximize it subject to the \textit{trust region constraint}, which enforces the distance between old and new policies, measured by KL-divergence, to be small enough:
+\begin{equation}
+    \mathbb{E}[\text{KL}(\pi_{\theta_\text{old}}(a \mid s), \pi_\theta(a \mid s))] \leq \delta
+\end{equation}
+That way, the old and new policies would not diverge too much when this hard constraint is met. Not only that, but TRPO also guarantees monotonic improvement over each iteration.
+
+The full details of the derivation of this method have been omitted, but can be found in \cite{DBLP:journals/corr/SchulmanLMJA15}. While TRPO is not the focus of this work, it was one of the motivators of \textit{proximal policy optimization}.
+
+The same way TRPO emerged as an improvement over vanilla policy gradient, PPO emerges as an improvement over TRPO. In short, some of the major disadvantages of TRPO is that it is computationally expensive and still sample inefficient.
+
+\section{Proximal Policy Optimization}
+Proximal policy optimization was proposed in \cite{schulman2017proximal}

@@ -24,7 +24,7 @@ behaviors:
 
         # Common trainer config
 
-        max_steps: 5.0e8    
+        max_steps: 5.0e7    
         time_horizon: 128
         summary_freq: 10000
         threaded: true
