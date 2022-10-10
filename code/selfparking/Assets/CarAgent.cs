@@ -65,7 +65,7 @@ public class CarAgent : Agent
     // Rewards
     public float goalReward = 1000f;
     public float alignedReward = 5000f;
-    public float loseReward = -1000f;
+    public float loseReward = -5000f;
     float sumRewards;
     // ------------------
 
@@ -79,6 +79,7 @@ public class CarAgent : Agent
     public int numSuccessAligned = 0;
     private Color green = new Color(0.29412f, 0.70980f, 0.26275f);
     private Color red = new Color(1f, 0f, 0f);
+    StatsRecorder sr;
     // ------------------
 
     // UI
@@ -101,6 +102,7 @@ public class CarAgent : Agent
         rb = GetComponent<Rigidbody>();
         gos = GameObject.FindGameObjectsWithTag("parked_car");
         Vector3[] initialPos = new Vector3[gos.Length];
+        sr = Academy.Instance.StatsRecorder;
         for (int i = 0; i < gos.Length; i++)
         {
             initialPos[i] = gos[i].transform.localPosition;
@@ -163,8 +165,8 @@ public class CarAgent : Agent
         sumRewards += parkingLotDirection * .1f;
         AddReward(fuzzyGoalDist * .1f);
         sumRewards += fuzzyGoalDist * .1f;
-        AddReward(-0.01f);
-        sumRewards += -0.01f;
+        AddReward(-2f);
+        sumRewards += -2f;
         
         if (Mathf.Abs(steering) > maxSteeringAngle || motor == 0)
         {
@@ -242,13 +244,15 @@ public class CarAgent : Agent
                     Debug.Log("Car successfully parked with align bonus");
                     numSuccess++;
                     numSuccessAligned++;
-                    //EndEpisode();
+                    sr.Add("Aligned Parking", 1);
+                    EndEpisode();
                 }
                 AddReward(goalReward);
                 sumRewards += goalReward;
                 Debug.Log("Car successfully parked");
                 numSuccess++;
-                //EndEpisode();
+                sr.Add("Aligned Parking", 1);
+                EndEpisode();
             }
         }
 
@@ -306,6 +310,7 @@ public class CarAgent : Agent
     {
         AddReward(-1f);
         sumRewards += -1f;
+        sr.Add("Collisions", 1);
         numCollisions++;
         if (numCollisions > 10)
         {

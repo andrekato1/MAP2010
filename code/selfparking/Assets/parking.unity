@@ -25364,6 +25364,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -26002,6 +26003,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -28526,6 +28528,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -45044,6 +45047,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -47486,6 +47490,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -55892,6 +55897,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -60124,6 +60130,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -88548,6 +88555,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -92783,6 +92791,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -94630,6 +94639,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -103271,6 +103281,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -103768,6 +103779,7 @@ MonoBehaviour:
   numCollisions: 0
   numEpisode: 0
   numSuccess: 0
+  numSuccessAligned: 0
   throttleText: {fileID: 224006836}
   steeringText: {fileID: 68271036}
   totalRewards: {fileID: 279559079}
@@ -103855,7 +103867,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 6ec3b590ea0098a4fbcb907e678c891a, type: 3}
   m_InferenceDevice: 1
   m_BehaviorType: 0
   m_BehaviorName: Car

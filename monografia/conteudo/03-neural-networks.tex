@@ -17,10 +17,10 @@ According to \cite{Mitchell}, \textit{"A computer program is said to learn from 
     \item Then, there's \textbf{Reinforcement Learning}, where we don't have a fixed dataset. Instead, RL algorithms interact with the environment, forming a feedback loop between the learning system and what it has experienced.
 \end{itemize}
 
-\section{Neural Networks}
+\section{Neural Networks}\label{sec:nn}
 Neural Networks are a set of machine learning algorithms, whose structure is strongly related with the structure of the human brain. 
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{neuron-diagram}
+    \includegraphics[scale=0.3]{neuron-diagram}
     \caption{Source: \href{https://www.medicalnewstoday.com/articles/320289}{MedicalNewsToday}}
 \end{figure}
 The main structural cells responsible for processing information are divided into 3 main parts:
@@ -33,13 +33,12 @@ In summary, upon receiving stimuli, the cell body processes those signals and if
 
 The human brain processes information processes in order $10^{-3}$ seconds, having a network of about 10 billion neurons densely connected, making it a huge, complex and efficient processing powerhouse, performing tasks like recognizing images and audios better than any machine. In an attempt to recreate a system that was able to operate like a human brain, the concept or \textit{Artificial Neural Networks} was idealized.
 
-\cite{haykin2009neural} cites the following useful properties and capabilities:
+\cite{haykin2009neural} cites some useful properties and capabilities:
 \begin{itemize}
     \item \textbf{Nonlinearity:} an artificial neuron can be linear or nonlinear. Therefore, a neural network, made up of an interconnection of nonlinear neurons, is itself nonlinear. Nonlinearity is a highly important property, particularly if the underlying physical mechanism responsible for generation of the input signal (e.g., speech signal) is inherently nonlinear.
     \item \textbf{I/O Mapping:} neural networks perform very well in supervised learning tasks, where we have labeled data. Each piece of data is used to update the synaptic bias of the network such that the difference between the expected output and the actual output is minimized.
     \item \textbf{Adaptivity:} neural networks have the capability to adapt their synaptic weights to changes in the surrounding environment. 
     \item \textbf{Evidential Response:} in particular, a neural network trained to operate in a specific environment can be easily retrained to deal with minor changes in the operating environmental conditions.
-    \item \textbf{Contextual Information:} in the context of pattern classification, a neural network can be designed to provide information not only about which particular pattern to select, but also about the confidence in the decision made. This latter information may be used to reject ambiguous patterns, should they arise, and thereby improve the classification performance of the network.
     \item \textbf{Uniformity of Analysis and Design:} neural networks enjoy universality as information processors, in a sense that the same notation is used in all domains involving the application of neural networks, making it possible to share techniques and theories between models with different purposes.
     \item \textbf{Neurobiological Analogy:} the design of a neural network is motivated by analogy with the brain, which is a living proof that parallel processing is not only physically possible, but also fast and powerful.
 \end{itemize}
@@ -72,7 +71,7 @@ In a multilayer perceptron, the perceptrons (neurons) are stacked in mutiple lay
 
 The first layer is the input layer, and its units take the values of the input vector. The last layer is the output layer, and it has one unit for each value the network outputs. In the context of classification, it could have a single unit in the case of binary classifiation, or $K$ units in the case of $K$-class classification. All the layers in between these are called hidden layers. It's called hidden because we don't know ahead of time what these units should compute, and this needs to be discovered during learning \cite{grosse2021}.
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{mlp}
+    \includegraphics[scale=0.5]{mlp}
     \caption{Source: \href{https://kinder-chen.medium.com/multilayer-perceptron-55bb39a08133}{Medium}}
 \end{figure}
 Such as the perceptron, the MLP can also be defined as a function. Denote by $h_i^{(l)}$ the $i$-th unit in the $l$-th hidden layer and by $y$ the output unit. Note that each unit has its own bias, and there's a weight for every pair of units in two consecutive layers. Therefore, the network's computation can be expressed as:
@@ -160,17 +159,3 @@ Recently, some unbounded activation functions have also proven to be very effect
     for $\alpha \in \mathbb{R}$.
 \end{itemize}
 The theorem also has an extension for the case with multiple hidden layers and outputs, but will not be addressed here.
-
-Below, we have an implementation in Python of a MLP, using Pytorch, one of the most famous machine learning frameworks for Python. This is the code for the actual neural network we'll use later.
-\begin{program}
-    \lstinputlisting[
-      language=Python,
-      style=wider,
-      functions={},
-      specialidentifiers={},
-    ]
-    {conteudo/network.py}
-  
-    \caption{Simple feed-forward MLP}
-  \end{program}
-We are using a simple network with only one hidden layer with 64 units and a single input and output. As described in the \href{https://pytorch.org/docs/stable/generated/torch.nn.Linear.html}{official documentation}, the \verb|torch.nn.Linear| function applies the linear transformation $y = w^Tx+b$ and \verb|torch.nn.functional.relu| is the ReLU activation function.

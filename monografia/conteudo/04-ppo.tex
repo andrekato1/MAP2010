@@ -7,7 +7,11 @@ Denoting by $\boldsymbol\theta \in \mathbb{R}^d$ the policy parameter vector, th
 \[
     \pi_{\boldsymbol\theta}(a \mid s, \boldsymbol\theta) = P\{A_t = a \mid S_t = s, \boldsymbol\theta_t = \boldsymbol\theta\}   
 \]
-We also need to define a performance measure $J(\boldsymbol\theta)$ to quantify how good a policy is. Policy gradient algorithms search for a local maximum in $J$ using gradient ascent:
+We also need to define a performance measure $J(\boldsymbol\theta)$ to quantify how good a policy is. We define such measure to be
+\begin{equation}
+    J(\boldsymbol\theta) = \sum_{s \in \mathcal{S}} d^{\pi_{\boldsymbol\theta}}(s) \sum_{a \in \mathcal{A}} q_{\pi_{\boldsymbol\theta}}(s, a) \pi_{\boldsymbol\theta}(a \mid s)
+\end{equation} 
+where $d^{\pi_{\boldsymbol\theta}}(s) = \lim_{t \to \infty} P\{s_t = s \mid s_0, \pi\}$ is the stationary distribution of states under policy $\pi$, which is assumed to be independent of the starting state $s_0$. Policy gradient algorithms search for a local maximum in $J$ using gradient ascent:
 \[
     \Delta\boldsymbol\theta = \alpha\nabla_{\boldsymbol\theta}J(\boldsymbol\theta)   
 \]
@@ -20,23 +24,21 @@ where $\nabla_{\boldsymbol\theta}J(\boldsymbol\theta)$ is the policy gradient de
         \frac{\partial J(\boldsymbol\theta)}{\partial \theta_n}
     \end{bmatrix}
 \end{align*} 
-and $\alpha$ is a step size parameter, commonly called \textit{learning rate}.    
+and $\alpha$ is a step size parameter, commonly called \textit{learning rate}.
 
-In our case, we define such measure to be $J(\boldsymbol\theta) = v_{\pi{\boldsymbol\theta}}(s_0)$, where $s_0$ denotes the starting state and $v_{\pi_{\boldsymbol\theta}}$ is the true value function for the parameterized policy $\pi_{\boldsymbol\theta}$. That is, the measure is the expected sum of discounted rewards.
-
-For that particular choice of $J(\boldsymbol\theta)$, we have a convenient way of expressing its gradient using the Policy Gradient Theorem (adapted from \cite{NIPS1999_464d828b}):
+The Policy Gradient Theorem provides a convenient way of expressing the gradient $\nabla_{\boldsymbol\theta} J(\boldsymbol\theta)$ (adapted from \cite{NIPS1999_464d828b}):
 \begin{theorem}{Policy Gradient Theorem}{pg_theorem}
     Given an MDP $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ and a parameterized policy $\pi_{\boldsymbol\theta}$, the gradient of the expected return $J(\boldsymbol\theta)$ is given by
     \begin{equation}
         \nabla_{\boldsymbol\theta} J(\boldsymbol\theta) \propto \sum_{s \in \mathcal{S}} d^{\pi_{\boldsymbol\theta}}(s) \sum_{a \in \mathcal{A}} q_{\pi_{\boldsymbol\theta}}(s, a) \nabla_{\boldsymbol\theta}\pi_{\boldsymbol\theta}(a \mid s)
     \end{equation}
 \end{theorem}
-Where $d^{\pi_{\boldsymbol\theta}}(s) = \lim_{t \to \infty} P\{s_t = s \mid s_0, \pi\}$ is the stationary distribution of states under policy $\pi$, which is assumed to be independent of the starting state $s_0$. Furthermore, we can use the following identity, commonly called the "log derivative trick", to rewrite the expression for the gradient:
+Furthermore, wW"log derivative trick", to rewrite the expression for the gradient:
 \begin{align*}
     \nabla_{\boldsymbol\theta}\pi_{\boldsymbol\theta}(a \mid s) &= \pi_{\boldsymbol\theta}(a \mid s)\frac{\nabla_{\boldsymbol\theta}\pi_{\boldsymbol\theta}(a \mid s)}{\pi_{\boldsymbol\theta}(a \mid s)} \\ 
      &= \pi_{\boldsymbol\theta}(a \mid s)\nabla_{\boldsymbol\theta}\log{\pi_{\boldsymbol\theta}(a \mid s)}
 \end{align*}
-Then, using the identity above, we are able to express the gradient as an expectation:
+Furthermore, using the identity above, we are able to express the gradient as an expectation:
 \begin{align}
     \nabla_{\boldsymbol\theta} J(\boldsymbol\theta) &\propto \sum_{s \in \mathcal{S}} d^{\pi_{\boldsymbol\theta}}(s) \sum_{a \in \mathcal{A}} q_{\pi_{\boldsymbol\theta}}(s, a) \nabla_{\boldsymbol\theta}\pi_{\boldsymbol\theta}(a \mid s)\\
     &= \sum_{s \in \mathcal{S}} d^{\pi_{\boldsymbol\theta}}(s) \sum_{a \in \mathcal{A}} q_{\pi_{\boldsymbol\theta}}(s, a) \nabla_{\boldsymbol\theta}\pi_{\boldsymbol\theta}(a \mid s)\frac{\pi_{\boldsymbol\theta}(a \mid s)}{\pi_{\boldsymbol\theta}(a \mid s)}\nonumber\\
@@ -49,14 +51,6 @@ where $\mathbb{E}_\pi$ is the expectation when $s \sim d^{\pi_{\boldsymbol\theta
     \hat{g} = \frac{1}{|\mathcal{D}|}\sum_{\tau \in \mathcal{D}} \sum_{t=0}^{T} q_{\pi_{\boldsymbol\theta}}(s_t, a_t)\nabla_{\boldsymbol\theta}\log{\pi_{\boldsymbol\theta}(a_t \mid s_t)}
 \end{equation}
 That is, we compute the expression inside the expectation in each episode and take the sample mean as an estimator for the gradient, allowing us to take an update step.
-
-The policy gradient, while elegant, has shown to be problematic in practical problems:
-
-\textbf{Sample inefficiency.} In order to run policy gradient, we need to sample from our policy millions and millions of times, since the estimation is done using Monte Carlo, averaging over a number of trial runs. Summing over all steps in a single trajectory could be very expensive computationally depending on the environment. It is also worth noting sample inefficiency is not a problem exclusive to policy gradient, it is an issue that has long plagued a lot of other RL algorithms.
-
-\textbf{Slow convergence.} Sampling millions of trajectories is already inherently slow, and the high variance makes optimization very inefficient.
-
-\textbf{High variance.} The high variance comes from the fact that, in RL, we are often dealing with very general problems. In our case, teaching a car to navigate through a parking lot. When we sample from an untrained policy, we are bound to observe highly variable behaviors, since we begin with a policy whose distribution of actions over states is effectively uniform. Of course, as the policy improves, the distribution is shaped to be unimodal or multimodal over some successful actions given a state. But in order to get there, we need the model to observe the outcomes of many different actions for each possible state. If we consider the action and state spaces to be continuous, the problem is even worse, since visiting every action-state pair possible is computationally intractable.
 
 Equation \ref{eq:grad-log-prob}, also known as \textit{grad-log-prob}, gives rise to an important result, which was used to derive a lot of other methods as an improvement over the \textit{vanilla} policy gradient.
 \begin{lemma}{Expected Grad-Log-Prob (EGLP)}{eglp}
@@ -93,9 +87,15 @@ where $\Phi_t$ may be any of these functions:
     \item $q_\pi\left(s_t, a_t\right)$ : state-action value function.
     \item $A_\pi\left(s_t, a_t\right)$ : advantage function.
 \end{itemize}
-\cite{https://doi.org/10.48550/arxiv.1506.02438} lists all the possible functions. For trust region methods and proximal policy optimization, $\Phi_t$ is chosen to be the advantage function $A_\pi\left(s_t, a_t\right)$.
+\cite{https://doi.org/10.48550/arxiv.1506.02438} lists all the possible functions. For trust region methods and proximal policy optimization, $\Phi_t$ is chosen to be the advantage function $A_\pi\left(s_t, a_t\right)$. The formulation of policy gradients with advantage functions is rather common, and the most known method to estimate it is \textit{generalized advantage estimation} as described in \cite{https://doi.org/10.48550/arxiv.1506.02438}.
 
-The formulation of policy gradients with advantage functions is rather common, but we then need a way to estimate it. The most known method is \textit{generalized advantage estimation} as described in \cite{https://doi.org/10.48550/arxiv.1506.02438}.
+The policy gradient, while elegant, has shown to be problematic in practical problems:
+
+\textbf{Sample inefficiency.} In order to run policy gradient, we need to sample from our policy millions and millions of times, since the estimation is done using Monte Carlo, averaging over a number of trial runs. Summing over all steps in a single trajectory could be very expensive computationally depending on the environment. It is also worth noting sample inefficiency is not a problem exclusive to policy gradient, it is an issue that has long plagued a lot of other RL algorithms.
+
+\textbf{Slow convergence.} Sampling millions of trajectories is already inherently slow, and the high variance makes optimization very inefficient.
+
+\textbf{High variance.} The high variance comes from the fact that, in RL, we are often dealing with very general problems. In our case, teaching a car to navigate through a parking lot. When we sample from an untrained policy, we are bound to observe highly variable behaviors, since we begin with a policy whose distribution of actions over states is effectively uniform. Of course, as the policy improves, the distribution is shaped to be unimodal or multimodal over some successful actions given a state. But in order to get there, we need the model to observe the outcomes of many different actions for each possible state. If we consider the action and state spaces to be continuous, the problem is even worse, since visiting every action-state pair possible is computationally intractable.
 
 \section{Trust Region Policy Optimization}
 TRPO updates policies by taking the largest step possible to improve performance, while satisfying a special constraint on how close the new and old policies are allowed to be.
@@ -114,9 +114,64 @@ and the goal is to maximize it subject to the \textit{trust region constraint}, 
 \end{equation}
 That way, the old and new policies would not diverge too much when this hard constraint is met. Not only that, but TRPO also guarantees monotonic improvement over each iteration.
 
-The full details of the derivation of this method have been omitted, but can be found in \cite{DBLP:journals/corr/SchulmanLMJA15}. While TRPO is not the focus of this work, it was one of the motivators of \textit{proximal policy optimization}.
+The full details of the derivation of this method have been omitted, but can be found in \cite{DBLP:journals/corr/SchulmanLMJA15}.
 
-The same way TRPO emerged as an improvement over vanilla policy gradient, PPO emerges as an improvement over TRPO. In short, some of the major disadvantages of TRPO is that it is computationally expensive and still sample inefficient.
+The same way TRPO emerged as an improvement over vanilla policy gradient, PPO emerges as an improvement over TRPO. In short, some of the disadvantages of TRPO is that it is computationally expensive, still sample inefficient and its derivation is incredibly complex.
 
-\section{Proximal Policy Optimization}
-Proximal policy optimization was proposed in \cite{schulman2017proximal}
+\section{Proximal Policy Optimization}\label{sec:ppo}
+Proximal policy optimization was proposed in \cite{schulman2017proximal} and the objective function is similar to TRPO, and is called \textit{clipped surrogate objective function}:
+\begin{equation}
+    L^\text{CLIP}(\theta) = \hat{\mathbb{E}}_t\left[\min{\left(r_t(\theta)\hat{A}_t, \text{clip}\left(r_t(\theta), 1- \epsilon, 1+\epsilon\right)\hat{A}_t\right)}\right]
+\end{equation}
+where $r_t(\theta) = \dfrac{\pi_{\theta}(a_t \mid s_t)}{\pi_{\theta_\text{old}}(a_t \mid s_t)}$. This is the same ratio as seen in TRPO and is one way to measure the divergence between the old and current policy. Note that if $r_t(\theta) > 1$, then, at time $t$, taking action $a$ in state $s$ is more likely in the current policy than the old policy. If $0 < r_t(\theta) < 1$, then the action is less likely in the current policy than the old one. According to \cite{schulman2017proximal}, the use of this ratio has been originally proposed by \cite{Kakade02approximatelyoptimal}. 
+
+As for the second term inside the $\min$ function, instead of using KL divergence to limit the distance between the two policies, PPO instead uses the clip operator, keeping that distance between the interval $[1-\epsilon, 1+\epsilon]$. The clip operator is defined as
+\begin{equation}
+    \text{clip}\left(r_t(\theta), 1- \epsilon, 1+\epsilon\right)=
+        \begin{cases}
+            1 - \epsilon & \text{if } r_t(\theta) < 1-\epsilon\\
+            1 + \epsilon & \text{if } r_t(\theta) > 1+\epsilon\\
+            r_t(\theta) & \text{otherwise}
+        \end{cases}
+    \end{equation}
+where $\epsilon$ is a hyperparameter. In \cite{schulman2017proximal} and in a lot of practical applications, $\epsilon = 0.2$ is used. Clipping (or restricting) the range of values that the probability ratio $r_t(\theta)$ can take is supposed to remove the incentive for pushing the probability ratio outside the interval enforced by the clipping operator. In other words, due to the clipping operation, the probability ratio $r_t(\theta)$ is supposed to remain within the interval $[1-\epsilon, 1+\epsilon]$ even after multiple updates. This way, we avoid destructively large weight updates, but in a different fashion than TRPO. Finally, we take the minimum of the clipped and the non-clipped objective, such that the final objective is a lower bound of the clipped objective.
+
+In cases where clipping does not apply, that is, when the value of $r_t(\theta)$ lies within the interval $[1-\epsilon, 1+\epsilon]$, neither the minimum operator or the clip operator impact the computation of the gradient.
+
+Now, consider the cases where clipping applies. When this happens, the behavior of $L^\text{CLIP}$ depends on the sign of $\hat{A}_t$.
+
+If $r_t(\theta) < 1 - \epsilon$ and $\hat{A}_t > 0$, the minimum operator will always select the value of $r_t(\theta)\hat{A}_t$ instead of the value computed by the clip operator, since
+\begin{align*}
+    r_t(\theta) &< 1 - \epsilon < \text{clip}\left(r_t(\theta), 1- \epsilon, 1+\epsilon\right) = 1 - \epsilon\\
+    r_t(\theta)\hat{A}_t &< (1 - \epsilon)\hat{A}_t < \text{clip}\left(r_t(\theta), 1 - \epsilon, 1+\epsilon\right)\hat{A}_t = (1 - \epsilon)\hat{A}_t
+\end{align*}
+The probability function being less than $1 - \epsilon$ means that the probability of choosing some action $a_t$ in state $s_t$ has decreased during the previous weight updates, but it was better than expected, as indicated by $\hat{A}_t > 0$. Thus, the gradient will make so that action $a_t$ becomes more likely in state $s_t$ again.
+
+If $r_t(\theta) < 1 - \epsilon$ and $\hat{A}_t < 0$, then the inequality sign flips
+\begin{align*}
+    r_t(\theta) &< 1 - \epsilon < \text{clip}\left(r_t(\theta), 1- \epsilon, 1+\epsilon\right) = 1 - \epsilon\\
+    r_t(\theta)\hat{A}_t &> (1 - \epsilon)\hat{A}_t > \text{clip}\left(r_t(\theta), 1 - \epsilon, 1+\epsilon\right)\hat{A}_t = (1 - \epsilon)\hat{A}_t
+\end{align*}
+and the minimum operator selects the clipped objective, which evaluates to $(1 - \epsilon)\hat{A}_t < 0$. Since this is a constant (because it's not a function of $\theta$), the gradient will evaluate to zero. Note that if this wasn't the case, the gradient would make the probability of selecting action $a_t$ in state $s_t$ even more unlikely, increasing the divergence between the two policies and ultimately collapsing performance, because the updates would be large, and this is exactly what PPO tries to avoid.
+
+The cases when $r_t(\theta) > 1 - \epsilon$ are analogous. All the non-trivial cases are summarized in the table below:
+$$\begin{array}{|l|c|l|l|c|c|}
+    \hline r_t(\theta) & A_t & \begin{array}{l}
+    \text { min } \\
+    \text { return value }
+    \end{array} & \begin{array}{l}
+    \text { Objective } \\
+    \text { clipped? }
+    \end{array} & \begin{array}{l}
+    \text { Objective } \\
+    \text { sign }
+    \end{array} & \text { Gradient } \\
+    \hline \hline r_t(\theta) \in[1-\epsilon, 1+\epsilon] & + & r_t(\theta) A_t & \text { no } & + & \text{non-zero} \\
+    \hline r_t(\theta) \in[1-\epsilon, 1+\epsilon] & - & r_t(\theta) A_t & \text { no } & - & \text{non-zero} \\
+    \hline r_t(\theta)<1-\epsilon & + & r_t(\theta) A_t & \text { no } & + & \text{non-zero} \\
+    \hline r_t(\theta)<1-\epsilon & - & (1-\epsilon) A_t & \text { yes } & - & \mathbf{0} \\
+    \hline r_t(\theta)>1+\epsilon & + & (1+\epsilon) A_t & \text { yes } & + & \mathbf{0} \\
+    \hline r_t(\theta)>1+\epsilon & - & r_t(\theta) A_t & \text { no } & - & \text{non-zero} \\
+    \hline
+    \end{array}$$
+%There are other variations of the objetive for PPO, but this is the implementation we will be using throughout the experiments.

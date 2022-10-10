@@ -8,7 +8,7 @@
 
 In the reinforcement learning framework, the agent makes decisions as a function of a signal from the environment called the \textbf{state}. In this section, we discuss what is required of the state signal and what information it does or does not convey.
 
-The state signal should include an immediate sensation, but it could include more than that, including some memory from past states. In fact, in typical applications, it usually is expected the state to inform the agent of more than just immediate sensations. For example, we could hear the word "yes", but we could be in totally different states depending on what was the question that came before and can no longer be heard. In contrast, the state signal should not be expected to inform the agent about all of the past experiences ou all about the environment. Ideally, we want the state signal to summarize well past experiences, in such a way all the relevant information is retained. 
+The state signal should include an immediate sensation, but it could include some memory from past states. In fact, in typical applications, it usually is expected the state to inform the agent of more than just immediate sensations. In contrast, the state signal should not be expected to inform the agent about all of the past experiences or all about the environment. Ideally, we want the state signal to summarize well past experiences, in such a way all the relevant information is retained. 
 
 To formalize this idea, for simplicity, suppose there are a finite number of states and rewards. Also, consider that the environment responds at time $t+1$ to a action taken at time $t$. We define the history sequence as $h_t = \{S_0, A_0, R_1, \dots, S_{t-1}, A_{t-1}, R_t, S_t, A_t\}$. Assume the state is a function of the history, that is, $S_t = f(h_t)$. If the state signal does not have the Markov property, the response of the environment depends on everything that happened earlier. Otherwise, the environment's response depends only on the state and actions at time $t$.
 \begin{definition}{Markov Property}{markov_property}
@@ -29,7 +29,7 @@ If every state of an environment is Markov, then we define a Markov Decision Pro
             \item $\gamma$ is a discount factor such that $\gamma \in [0, 1]$
       \end{itemize}  
 \end{definition}
-Other authors also define an MDP to be a tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \rho_0 \rangle$, with $\rho_0$ being a distribution of starting states.
+Some authors define an MDP to be a tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \rho_0 \rangle$, with $\rho_0$ being a distribution of starting states.
 
 \section{Policies}
 A big part of reinforcement learning is estimating how much reward the agent is expected to get by being in a specific state. In order to do that, we introduce the \textit{value function} - a function of a state or a state-action pair that estimates the expected future rewards (or expected return), which tells us how good it is to be in a certain state or how good it is to take a specific action while in a specific state. Accordingly, value functions are defined with respect to different ways of acting and these ways of acting are dictated by a \textit{policy}. 
@@ -42,10 +42,10 @@ and the latter is a probability distribution over $a \in \mathcal{A}$ for each $
 \[
       a_t \sim \pi(\cdot \mid s_t)      
 \]
-Moreover, in this work, we will use \textit{parameterized policies}, whose outputs are computable functions that depend on a set of parameters $\theta$, which can be adjusted using optimization algorithms. Parameterized policies are denoted by
+Moreover, in this work, we are concerned with \textit{parameterized policies}, whose outputs are computable functions that depend on a set of parameters $\boldsymbol\theta$, which can be adjusted using optimization algorithms. Parameterized policies are denoted by
 \begin{align*}
-      &a_t = \mu_\theta(s_t)\\
-      &a_t = \pi_\theta(\cdot \mid s_t)\\
+      &a_t = \mu_{\boldsymbol\theta}(s_t)\\
+      &a_t = \pi_{\boldsymbol\theta}(\cdot \mid s_t)\\
 \end{align*}
 
 Given an MDP $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ and a policy $\pi$, we define the state-value function
@@ -88,9 +88,7 @@ and then we are able to formulate what is a optimal policy.
       \]
 \end{definition}
 
-Now, recall that the fundamental objective of reinforcement learning problems is to maximize rewards on the long run. One way to do that is using \textit{Bellman Equations}, which enables us to calculate the optimal value functions defined above using recursive relationships and dynamic programming.
-
-However, in this work, we'll focus on a particular class of methods called \textit{Proximal Policy Optimization}, and for that, it isn't necessary to know how good a state/action is, but only how much better it is compared to others. We formalize this concept by defining the \textit{advantage function}:
+Now, recall that the fundamental objective of reinforcement learning problems is to maximize rewards on the long run. One way to do that is using \textit{Bellman Equations}, which enables us to calculate the optimal value functions defined above using recursive relationships and dynamic programming. However, in this work, we'll focus on \textit{Proximal Policy Optimization} and it isn't necessary to know how good a state/action is, but only how much better it is compared to others. We formalize this concept by defining the \textit{advantage function}:
 
 \begin{definition}{Advantage Function}{advantage_function}
       The advantage function $A^{\pi}(s,a)$ describes how much better it is to take a specific action $a$ in state $s$, over randomly selecting an action according to $\pi(\cdot \mid s)$ and following policy $\pi$ forever after.
@@ -98,3 +96,4 @@ However, in this work, we'll focus on a particular class of methods called \text
             A_\pi(s, a) = q_\pi(s, a) - v_\pi(s)      
       \]
 \end{definition}
+The method for estimating advantage functions are described in \cite{https://doi.org/10.48550/arxiv.1506.02438}.
