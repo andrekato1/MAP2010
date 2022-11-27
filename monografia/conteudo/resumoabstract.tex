@@ -4,46 +4,29 @@
 
 % As palavras-chave são obrigatórias, em português e em inglês, e devem ser
 % definidas antes do resumo/abstract. Acrescente quantas forem necessárias.
-\palavrachave{Palavra-chave1}
-\palavrachave{Palavra-chave2}
-\palavrachave{Palavra-chave3}
+\palavrachave{Machine learning}
+\palavrachave{Unity}
+\palavrachave{Inteligência artificial}
+\palavrachave{Redes neurais}
+\palavrachave{Aprendizado por reforço}
+\palavrachave{Proximal policy optimization}
+\palavrachave{Estacionamento automático}
 
-\keyword{Keyword1}
-\keyword{Keyword2}
-\keyword{Keyword3}
+\keyword{Machine learning}
+\keyword{Unity}
+\keyword{Artificial intelligence}
+\keyword{Neural networks}
+\keyword{Reinforcement learning}
+\keyword{Proximal policy optimzation}
+\keyword{Autonomous parking}
 
 % O resumo é obrigatório, em português e inglês. Estes comandos também
 % geram automaticamente a referência para o próprio documento, conforme
 % as normas sugeridas da USP.
 \resumo{
-Elemento obrigatório, constituído de uma sequência de frases concisas e
-objetivas, em forma de texto. Deve apresentar os objetivos, métodos empregados,
-resultados e conclusões. O resumo deve ser redigido em parágrafo único, conter
-no máximo 500 palavras e ser seguido dos termos representativos do conteúdo do
-trabalho (palavras-chave). Deve ser precedido da referência do documento.
-Texto texto texto texto texto texto texto texto texto texto texto texto texto
-texto texto texto texto texto texto texto texto texto texto texto texto texto
-texto texto texto texto texto texto texto texto texto texto texto texto texto
-texto texto texto texto texto texto texto texto texto texto texto texto texto
-texto texto texto texto texto texto texto texto texto texto texto texto texto
-texto texto texto texto texto texto texto texto.
-Texto texto texto texto texto texto texto texto texto texto texto texto texto
-texto texto texto texto texto texto texto texto texto texto texto texto texto
-texto texto texto texto texto texto texto texto texto texto texto texto texto
-texto texto texto texto texto texto texto texto texto texto texto texto texto
-texto texto.
+    Neste trabalho, apresentamos uma visão geral sobre o aprendizado por reforço, com foco em \textit{proximal policy optimization} (PPO). Nos últimos anos, muitos métodos em aprendizado por reforço surgiram, incluindo os baseados em \textit{policy gradient} (PG). Os métodos PG têm algumas vantagens relevantes sobre outros métodos, uma vez que têm boas propriedades de convergência e lidam bem com espaços de ação contínuos. Estamos particularmente interessados no estudo do PPO, um método de PG derivado de \textit{trust region policy optimization} (TRPO), que foi proposto como uma melhoria em relação ao PG original. Ambos os métodos previnem atualizações de peso destrutivas, que colapsam o processo de treinamento. PPO tem uma ligeira vantagem sobre a TRPO por ser um método menos complexo de derivar e menos computacionalmente complexo em comparação ao TRPO. Combinando PPO com métodos de aprendizagem profunda, estudamos um problema de estacionamento, onde temos um carro, cujo objetivo é estacionar em uma vaga designada em diferentes circunstâncias. Também discutimos o \textit{design} das recompensas nos experimentos, mostrando alguns dos problemas encontradas durante o desenvolvimento e a forma como foram resolvidos.
 }
 
 \abstract{
-Elemento obrigatório, elaborado com as mesmas características do resumo em
-língua portuguesa. De acordo com o Regimento da Pós-Graduação da USP (Artigo
-99), deve ser redigido em inglês para fins de divulgação. É uma boa ideia usar
-o sítio \url{www.grammarly.com} na preparação de textos em inglês.
-Text text text text text text text text text text text text text text text text
-text text text text text text text text text text text text text text text text
-text text text text text text text text text text text text text text text text
-text text text text text text text text text text text text.
-Text text text text text text text text text text text text text text text text
-text text text text text text text text text text text text text text text text
-text text text.
+In this work, we present a general overview on deep reinforcement learning (RL), focusing particularly on proximal policy optimization. Over the recent years, many RL methods have been derived, including ones based on policy gradient (PG). Policy gradient methods have important advantages over other methods, since it has good convergence properties and can handle continuous action spaces well. We are particularly interested in proximal policy optimization (PPO), a policy gradient method derived from trust region policy optimization (TRPO), which was proposed as an improvement over vanilla policy gradient. Both of these methods avoid destructive weight updates, a issue commonly found on vanilla PG, with PPO having a slight edge on TRPO for being less complex to derive and less computationally expensive compared to TRPO. Combining PPO with deep learning methods, we tackle a car parking problem, where a car has to park in a designated spot under different circumstances. We also discuss the reward design for the experiments, showing some of the pitfalls encountered during development and how they were addressed.
 }

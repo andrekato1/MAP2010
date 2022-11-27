@@ -54,12 +54,12 @@ The reward functions are described in the table below:
 \hline Timeout & $-1000$ \\
 \hline Parking successfully & $1000$ \\
 \hline Parking successfully and sufficiently aligned & $5000$ \\
-\hline Time & $-2$ per timestep \\
-\hline Stopping & $-0.0002$ per timestep \\
-\hline Collision & $-1$ \\
-\hline Stay in collision & $-0.5$ per timestep \\
-\hline Goal heading & $-1$ to $1$ per timestep, see below for details\\
-\hline Goal distance & $-1$ to $1$ per timestep, see below for details\\
+\hline Time & $-0.1$/timestep \\
+\hline Stopping & $-0.0002$/timestep \\
+\hline Collision & $-1000$ \\
+\hline Stay in collision & $-0.5$/timestep \\
+\hline Goal heading & $-1$ to $1$/timestep, see below for details\\
+\hline Goal distance & $-1$ to $1$/timestep, see below for details\\
 \hline
 \end{tabular}
 \caption{\label{tab:rewards}Reward functions for the agent.}
@@ -116,5 +116,26 @@ The values used are the suggested values for training continuous action spaces m
     \label{fig:entropy1}
 \end{figure}
 The behavior is completely random when training starts, but once it parks correctly for the first time, the agent is quick to learn what is to be achieved, and eventually learns how to do it in the least time possible. To summarize, the main challenges of this experiment was to provide enough incentive for the agent to reach the goal and working around eventual exploits the agent would find in our reward design that would make it not accomplish what was intended.
+
 \section{Experiment 2: Randomized Car Position and Fixed Parking Spot}
-\section{Experiment 3: Randomized Car and Parking Spot Positions}
+For this experiment, we added some randomness to the environment by randomizing the starting position of the agent. During the first iteration of this experiment, we selected an area within the parking lot and at each episode, the agent would start in a random position within that area. 
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{exp2/spawnarea}
+    \caption{Area for the agent's starting position.}
+    \label{fig:randomspawnarea}
+\end{figure}
+All hyperparameters and rewards were kept unchanged. Ultimately, in this setup, we couldn't reach the desired behavior, with the agent's actions being unintelligible even after $5\cdot 10^{7}$ iterations, as shown by the policy entropy
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{exp2/entropy}
+    \caption{Entropy evolution during training.}
+    \label{fig:entropy2}
+\end{figure}
+and the cumulative rewards having very high variance, compared to the previous experiments.
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{exp2/cumrewards}
+    \caption{Cumulative rewards obtained by the agent during training.}
+    \label{fig:cumrewards2}
+\end{figure}
+We gradually reduced the area in which the agent could spawn in an attempt to reduce randomness and achieve convergence, but to no avail.
+
+Ultimately, we decided to work with a finite amount of possible initial positions, until we got to only 2 possible positions and still did not achieve convergence. While the model showed an increase in cumulative rewards, it still had high variance.

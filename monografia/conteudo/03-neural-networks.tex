@@ -20,8 +20,8 @@ According to \cite{Mitchell}, \textit{"A computer program is said to learn from 
 \section{Neural Networks}\label{sec:nn}
 Neural Networks are a set of machine learning algorithms, whose structure is strongly related with the structure of the human brain. 
 \begin{figure}[H]
-    \includegraphics[scale=0.3]{neuron-diagram}
-    \caption{Source: \href{https://www.medicalnewstoday.com/articles/320289}{MedicalNewsToday}}
+    \includegraphics[width=\textwidth]{neuron-diagram}
+    \caption{Representation of a human neuron. Source: \href{https://www.medicalnewstoday.com/articles/320289}{MedicalNewsToday}}
 \end{figure}
 The main structural cells responsible for processing information are divided into 3 main parts:
 \begin{itemize}
@@ -33,22 +33,19 @@ In summary, upon receiving stimuli, the cell body processes those signals and if
 
 The human brain processes information processes in order $10^{-3}$ seconds, having a network of about 10 billion neurons densely connected, making it a huge, complex and efficient processing powerhouse, performing tasks like recognizing images and audios better than any machine. In an attempt to recreate a system that was able to operate like a human brain, the concept or \textit{Artificial Neural Networks} was idealized.
 
-\cite{haykin2009neural} cites some useful properties and capabilities:
+\cite{haykin2009neural} cites the following useful properties and capabilities:
 \begin{itemize}
     \item \textbf{Nonlinearity:} an artificial neuron can be linear or nonlinear. Therefore, a neural network, made up of an interconnection of nonlinear neurons, is itself nonlinear. Nonlinearity is a highly important property, particularly if the underlying physical mechanism responsible for generation of the input signal (e.g., speech signal) is inherently nonlinear.
     \item \textbf{I/O Mapping:} neural networks perform very well in supervised learning tasks, where we have labeled data. Each piece of data is used to update the synaptic bias of the network such that the difference between the expected output and the actual output is minimized.
     \item \textbf{Adaptivity:} neural networks have the capability to adapt their synaptic weights to changes in the surrounding environment. 
     \item \textbf{Evidential Response:} in particular, a neural network trained to operate in a specific environment can be easily retrained to deal with minor changes in the operating environmental conditions.
+    \item \textbf{Contextual Information:} in the context of pattern classification, a neural network can be designed to provide information not only about which particular pattern to select, but also about the confidence in the decision made. This latter information may be used to reject ambiguous patterns, should they arise, and thereby improve the classification performance of the network.
     \item \textbf{Uniformity of Analysis and Design:} neural networks enjoy universality as information processors, in a sense that the same notation is used in all domains involving the application of neural networks, making it possible to share techniques and theories between models with different purposes.
     \item \textbf{Neurobiological Analogy:} the design of a neural network is motivated by analogy with the brain, which is a living proof that parallel processing is not only physically possible, but also fast and powerful.
 \end{itemize}
 
 \section{Perceptron}
 In order to create a model that would function similarly to a human brain, the psychologist and neurobiologist Frank Rosenblatt proposed the \textit{perceptron} model. In his words, "a probabilistic model for information storage and organization in the brain" \cite{rosenblatt:perceptron}.
-\begin{figure}[H]
-    \includegraphics[width=\textwidth]{perceptron}
-    \caption{Source: \href{https://medium.com/@stanleydukor/neural-representation-of-and-or-not-xor-and-xnor-logic-gates-perceptron-algorithm-b0275375fea1}{Medium}}
-\end{figure}
 In this artificial neuron, we have the following structures:
 \begin{itemize}
     \item An input vector $x \in \mathbb{R}^n$
@@ -60,6 +57,10 @@ In this artificial neuron, we have the following structures:
     \]
     \item An activation function $\phi \colon \mathbb{R} \to \mathbb{R}$ mapping the weighted sum $z$ to an output $\phi(z)$.
 \end{itemize}
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{perceptron}
+    \caption{Representation of a artificial neural network. The bias has been omitted for brevity. Source: \href{https://medium.com/@stanleydukor/neural-representation-of-and-or-not-xor-and-xnor-logic-gates-perceptron-algorithm-b0275375fea1}{Medium}}
+\end{figure}
 In general, given $w \in \mathbb{R}^n$ and $b \in \mathbb{R}$, the perceptron model can be defined as a function $h \colon \mathbb{R}^n \to \mathbb{R}$ such that
 \[
     h(x \mid w, b) = \phi(w^Tx + b)    
@@ -69,10 +70,10 @@ From the perceptron, multiple models have been derived, but we are particularly 
 \section{Multilayer Perceptron}
 In a multilayer perceptron, the perceptrons (neurons) are stacked in mutiple layers in such a way that every node on each layer is connected to all other nodes on the next layer, without any cycles, characterizing the \textit{feed-forward} nature of the model.
 
-The first layer is the input layer, and its units take the values of the input vector. The last layer is the output layer, and it has one unit for each value the network outputs. In the context of classification, it could have a single unit in the case of binary classifiation, or $K$ units in the case of $K$-class classification. All the layers in between these are called hidden layers. It's called hidden because we don't know ahead of time what these units should compute, and this needs to be discovered during learning \cite{grosse2021}.
+The first layer is the input layer, and its units take the values of the input vector. The last layer is the output layer, and it has one unit for each value the network outputs. In the context of classification, it could have a single unit in the case of binary classifiation, or $K$ units in the case of $K$-class classification. All the layers in between these are called hidden layers. It's called hidden because we don't know ahead of time what these units should compute, and this needs to be discovered during learning (\cite{grosse2021}).
 \begin{figure}[H]
-    \includegraphics[scale=0.5]{mlp}
-    \caption{Source: \href{https://kinder-chen.medium.com/multilayer-perceptron-55bb39a08133}{Medium}}
+    \includegraphics[width=\textwidth]{mlp}
+    \caption{Representation of a multilayer perceptron. Source: \href{https://kinder-chen.medium.com/multilayer-perceptron-55bb39a08133}{Medium}}
 \end{figure}
 Such as the perceptron, the MLP can also be defined as a function. Denote by $h_i^{(l)}$ the $i$-th unit in the $l$-th hidden layer and by $y$ the output unit. Note that each unit has its own bias, and there's a weight for every pair of units in two consecutive layers. Therefore, the network's computation can be expressed as:
 \begin{align}
@@ -80,7 +81,7 @@ Such as the perceptron, the MLP can also be defined as a function. Denote by $h_
     h_i^{(2)} &= \phi^{(2)} \left(\sum_j w_{ij}^{(2)}h_j^{(1)} + b_i^{(2)}\right) \\
     y_i &= \phi^{(3)} \left(\sum_j w_{ij}^{(3)}h_j^{(2)} + b_i^{(3)}\right) \nonumber
 \end{align}
-An important result for MLP models is the Universal Approximation Theorem \cite{journals/mcss/Cybenko89}:
+An important result for MLP models is the Universal Approximation Theorem (\cite{journals/mcss/Cybenko89}):
 \begin{theorem}{Universal Approximation Theorem}
     Let $\sigma: \mathbb{R} \rightarrow \mathbb{R}$ be a continuous, bounded, non-constant and monotonically decreasing function. Let $I_{n}=[0,1]^{n}$ be the n-dimensional hypercube and $C\left(I_{n}\right)$ the space of continuous functions in $I_{n}$. Then, given $f \in C\left(I_{n}\right)$ independent of $\sigma$ and $\epsilon>0$, there exists $N \in \mathbb{N}, w_{i} \in \mathbb{R}^{n}, b_{i} \in \mathbb{R}$ and $\alpha_{i} \in \mathbb{R}$, where $i=1, \ldots, N$ such that 
     \[
@@ -121,11 +122,10 @@ Cybenko proved the theorem specifically for the \textit{sigmoid} activation func
         ylabel=y,
         tick align=outside,
         enlargelimits=false]
-      % plot the stirling-formulae
       \addplot[domain=-1:1, red, ultra thick,samples=500] {1/(1+exp(-5*x))};
     \end{axis}
 \end{tikzpicture}
-\caption{Graph for the Sigmoid function.}
+\caption{Graph for the Sigmoid function. Source: Author.}
 \end{figure}
 But other activation functions have also been shown to satisfy the theorem, such as:
 \begin{itemize}

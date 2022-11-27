@@ -1,0 +1,12 @@
+\chapter{Conclusions}
+In this work, we presented an overview of how reinforcement learning works, with a particular focus on policy gradient methods and its derivation, showing some of its pitfalls and how this motivated the creation of TRPO, to address stability issues found in vanilla PG. Even being more computationally expensive, TRPO is still substantially more efficient when working with high-dimensional problems, effectively balancing out with the computational cost drawback.
+
+Then, PPO was proposed to address the high computational cost of TRPO while retaining similar performance levels and being more sample efficient. While PPO is often considered as one of the most important recent breakthroughs in the field, a recent study (\cite{https://doi.org/10.48550/arxiv.2005.12729}) has rised some controversy by contradicting the belief that replacing the KL divergence found in TRPO by the clipping operator is the key innovation in PPO. The author also concludes that it's still pooly understood how each component of a RL algorithm impacts agent training performance.
+
+Controversies apart, proximal policy optimization showed good results in our experiments, however, contrary to our initial belief when first designing the experiments, properly designing rewards proved to be one of the most important aspects of a RL experiment. It was easy to see how the policy completed changed as we tried different reward functions for the agent. This motivated further study in design rewards, which ultimately ended up in its own section (\ref{sec:rewards}).
+
+As for future extensions of this work, the most important one is to refine the rewards design, such as rewriting some of them as a potential-based reward function to guarantee policy invariance, as well as come up with new ones.
+
+Increasing complexity is also a possibility, adding more obstacles, including moving ones, such as pedestrians, or adding more than one possible parking spot and observe if the agent would be able to consistently go for the closest one.
+
+It could also be interesting to include other parking situations we found on our daily lives, such as parallel parking or reverse parking.

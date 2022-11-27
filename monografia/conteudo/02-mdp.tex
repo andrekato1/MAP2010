@@ -8,7 +8,7 @@
 
 In the reinforcement learning framework, the agent makes decisions as a function of a signal from the environment called the \textbf{state}. In this section, we discuss what is required of the state signal and what information it does or does not convey.
 
-The state signal should include an immediate sensation, but it could include some memory from past states. In fact, in typical applications, it usually is expected the state to inform the agent of more than just immediate sensations. In contrast, the state signal should not be expected to inform the agent about all of the past experiences or all about the environment. Ideally, we want the state signal to summarize well past experiences, in such a way all the relevant information is retained. 
+The state signal should include an immediate sensation, but it could include more than that, including some memory from past states. In fact, in typical applications, it usually is expected the state to inform the agent of more than just immediate sensations. For example, we could hear the word "yes", but we could be in totally different states depending on what was the question that came before and can no longer be heard. In contrast, the state signal should not be expected to inform the agent about all of the past experiences ou all about the environment. Ideally, we want the state signal to summarize well past experiences, in such a way all the relevant information is retained. 
 
 To formalize this idea, for simplicity, suppose there are a finite number of states and rewards. Also, consider that the environment responds at time $t+1$ to a action taken at time $t$. We define the history sequence as $h_t = \{S_0, A_0, R_1, \dots, S_{t-1}, A_{t-1}, R_t, S_t, A_t\}$. Assume the state is a function of the history, that is, $S_t = f(h_t)$. If the state signal does not have the Markov property, the response of the environment depends on everything that happened earlier. Otherwise, the environment's response depends only on the state and actions at time $t$.
 \begin{definition}{Markov Property}{markov_property}
@@ -29,7 +29,7 @@ If every state of an environment is Markov, then we define a Markov Decision Pro
             \item $\gamma$ is a discount factor such that $\gamma \in [0, 1]$
       \end{itemize}  
 \end{definition}
-Some authors define an MDP to be a tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \rho_0 \rangle$, with $\rho_0$ being a distribution of starting states.
+Other authors also define an MDP to be a tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \rho_0 \rangle$, with $\rho_0$ being a distribution of starting states.
 
 \section{Policies}
 A big part of reinforcement learning is estimating how much reward the agent is expected to get by being in a specific state. In order to do that, we introduce the \textit{value function} - a function of a state or a state-action pair that estimates the expected future rewards (or expected return), which tells us how good it is to be in a certain state or how good it is to take a specific action while in a specific state. Accordingly, value functions are defined with respect to different ways of acting and these ways of acting are dictated by a \textit{policy}. 
@@ -42,10 +42,10 @@ and the latter is a probability distribution over $a \in \mathcal{A}$ for each $
 \[
       a_t \sim \pi(\cdot \mid s_t)      
 \]
-Moreover, in this work, we are concerned with \textit{parameterized policies}, whose outputs are computable functions that depend on a set of parameters $\boldsymbol\theta$, which can be adjusted using optimization algorithms. Parameterized policies are denoted by
+Moreover, in this work, we will use \textit{parameterized policies}, whose outputs are computable functions that depend on a set of parameters $\theta$, which can be adjusted using optimization algorithms. Parameterized policies are denoted by
 \begin{align*}
-      &a_t = \mu_{\boldsymbol\theta}(s_t)\\
-      &a_t = \pi_{\boldsymbol\theta}(\cdot \mid s_t)\\
+      &a_t = \mu_\theta(s_t)\\
+      &a_t = \pi_\theta(\cdot \mid s_t)\\
 \end{align*}
 
 Given an MDP $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ and a policy $\pi$, we define the state-value function
@@ -88,7 +88,9 @@ and then we are able to formulate what is a optimal policy.
       \]
 \end{definition}
 
-Now, recall that the fundamental objective of reinforcement learning problems is to maximize rewards on the long run. One way to do that is using \textit{Bellman Equations}, which enables us to calculate the optimal value functions defined above using recursive relationships and dynamic programming. However, in this work, we'll focus on \textit{Proximal Policy Optimization} and it isn't necessary to know how good a state/action is, but only how much better it is compared to others. We formalize this concept by defining the \textit{advantage function}:
+Now, recall that the fundamental objective of reinforcement learning problems is to maximize rewards on the long run. One way to do that is using \textit{Bellman Equations}, which enables us to calculate the optimal value functions defined above using recursive relationships and dynamic programming.
+
+However, in this work, we'll focus on a particular class of methods called \textit{Proximal Policy Optimization}, and for that, it isn't necessary to know how good a state/action is, but only how much better it is compared to others. We formalize this concept by defining the \textit{advantage function}:
 
 \begin{definition}{Advantage Function}{advantage_function}
       The advantage function $A^{\pi}(s,a)$ describes how much better it is to take a specific action $a$ in state $s$, over randomly selecting an action according to $\pi(\cdot \mid s)$ and following policy $\pi$ forever after.
@@ -96,4 +98,26 @@ Now, recall that the fundamental objective of reinforcement learning problems is
             A_\pi(s, a) = q_\pi(s, a) - v_\pi(s)      
       \]
 \end{definition}
-The method for estimating advantage functions are described in \cite{https://doi.org/10.48550/arxiv.1506.02438}.
+
+\section{Designing Rewards}\label{sec:rewards}
+One of the most important aspects when designing a RL experiment is defining reward functions. It's also one of the most challenging ones. For simpler problems, a positive reward $+1$ for achieving a goal and a negative reward $-1$ for not achieving the goal or losing, depending on the context. This is called a \textit{sparse} reward, since rewards are only obtainable from a very specific and small set of states. In that way, while the agent is exploring the environment, it will not receive any feedbacks on how good or bad its actions were.
+
+The most common solution is to just add more rewards via \textit{reward shaping}. As described in \cite{10.5555/645528.657613}, reward shaping considers a \textit{transformed MDP} $M' = \langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R'}, \gamma \rangle$, where $R' = R + F$ and $F \colon \mathcal{S} \times \mathcal{A} \times \mathcal{S} \to \mathbb{R}$ is a bounded real-valued function, called \textit{reward shaping function}. While this approach may significantly improve performance and convergence, there is a possibility that we end up converging to a suboptimal policy and badly designed rewards can make the agent behave erratically or in a unintended way.
+
+In \cite{10.5555/645528.657613}, the authors discuss a method called \textit{potential-based} reward shaping (PBRS). This is the first method that has proven to leave the optimal policy unaltered (policy-invariance property). While PBRS was not used in our experiments, it is an important result in reward shaping in RL problems.
+
+\begin{theorem}{Potential-based shaping function}
+      Given any $\mathcal{S}, \mathcal{A}, \gamma$ and shaping function $F$, we say $F$ is a \textbf{potential-based} shaping function if there exists a real-valued function $\Phi \colon \mathcal{S} \to \mathbb{R}$ such that for all $s \in \mathcal{S} - \{s_0\}$, $a \in \mathcal{A}$, $s' \in \mathcal{S}$,
+      \begin{equation}\label{eq:pbsf}
+            F(s, a, s') = \gamma \Phi(s') - \Phi(s)
+      \end{equation}
+      Then, $F$ is a \textbf{sufficient} and \textbf{necessary} condition to guarantee optimal policy consistency when learning from MDP $M' = \langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R'}, \gamma \rangle$,  rather than $M = \langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$.
+\end{theorem}
+
+\textit{Sufficiency} means that every optimal policy in $M'$ is also an optimal policy in $M$ and \textit{necessity} means that if $F$ is not a potential-based shaping function (there is no function $\Phi$ satisfying \ref{eq:pbsf}), then there exist transition probability functions $\mathcal{P}$ and reward functions $\mathcal{R}$ such that no optimal policy in $M'$ is an optimal policy in $M$.
+
+The intuition behind PBRS is it avoids exploiting behaviors the agent may find in pooly designed rewards. Suppose a state $s^*$ gives a reward of $c \in \mathbb{R}$, such that reaching this state is desirable and a state $s'$ that gives no rewards. In a exploiting behavior, assuming the agent is already at $s_t = s^*$, it could trasition to another state $s_{t+1} = s'$ and go back to $s_{t+2} = s^*$, repeating this indefinitely to achieve more and more rewards. By using PBRS, this behavior would yield a negative reward:
+\begin{equation}
+      F(s, a, s') = \gamma 0 - c = -c
+\end{equation}
+That is, the agent would get punished for going back to state $s'$, because this would lead it to go to $s^*$ again.
